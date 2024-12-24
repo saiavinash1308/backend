@@ -177,7 +177,7 @@ router.post('/create',  async(req, res) => {
           },
       });
 
-      return res.status(200).json({ message: 'Payment created', order, transaction });
+      return res.status(200).json({ message: 'Payment created', orderId: order.id, amount: order.amount });
   } catch (error) {
       console.error("Razorpay Error:", error); // Log for debugging
       return res.status(500).json({ message: 'Internal server error' });
