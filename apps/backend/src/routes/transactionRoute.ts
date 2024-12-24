@@ -167,7 +167,7 @@ router.post('/create',  async(req, res) => {
 
       const order = await razorpayInstance.orders.create(options);
 
-      // Store the transaction in the database
+    
       const transaction = await prisma.payments.create({
           data: {
               orderId: order.id,
