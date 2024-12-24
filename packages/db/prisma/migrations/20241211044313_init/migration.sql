@@ -1,0 +1,2 @@
+-- AddForeignKey
+ALTER TABLE `Room` ADD CONSTRAINT `Room_winnerId_fkey` FOREIGN KEY (`winnerId`) REFERENCES `User`(`userId`) ON DELETE SET NULL ON UPDATE CASCADE;
