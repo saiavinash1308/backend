@@ -184,6 +184,7 @@ router.post('/create',  async(req, res) => {
   }
 });
 
+//This is transaction routes
 router.get('/fetchTransactions', authenticateToken, async(req: UserRequest, res) => {
   try {
     const authUser = req.user
