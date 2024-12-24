@@ -7,6 +7,7 @@ import uniqid from 'uniqid'
 import sha256 from 'sha256'
 
 import crypto from 'crypto';
+import { authenticateToken, UserRequest } from '../middlewares/verifyUser';
 
 const router = express.Router();
 
@@ -182,6 +183,32 @@ router.post('/create',  async(req, res) => {
       return res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+router.get('/fetchTransactions', authenticateToken, async(req: UserRequest, res) => {
+  try {
+    const authUser = req.user
+    if(!authUser){
+        return res.status(401).json({message: 'Unauthorized'})
+    }
+    const {userId} = authUser
+    const transactions = await prisma.payments.findMany({
+      where: {
+        userId
+      },
+      select: {
+        orderId: true,
+        createdAt: true,
+        amount: true,
+        status: true,
+      },
+      take: 20
+    })
+    return res.status(200).json(transactions)
+    } catch (error) {
+      return res.status(500).json({message: 'Internal server error'})
+    }
+  
+})
 
 
 

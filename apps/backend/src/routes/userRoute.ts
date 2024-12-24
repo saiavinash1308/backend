@@ -1,4 +1,4 @@
-import express, {Request, Response} from 'express';
+import express from 'express';
 import jwt from 'jsonwebtoken';
 import {prisma} from '../lib/auth'
 import { validateUser } from '../zod/validateAdmin';
@@ -82,7 +82,7 @@ interface JwtPayload {
     userId: string; // Add any other fields present in your token payload
 }
 
-router.post('/update', authenticateToken ,async(req: Request & { user?: JwtPayload }, res) => {
+router.post('/update', authenticateToken ,async(req: UserRequest, res) => {
     try {
         const authUser = req.user
         if(!authUser){
