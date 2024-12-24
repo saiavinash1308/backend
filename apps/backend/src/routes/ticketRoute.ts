@@ -1,5 +1,5 @@
 import express from 'express'
-import { validateResolve, validateTicket } from '../zod/validateTicket';
+import { validateResolve, validateTicket } from '../zod/validateAdmin';
 import { prisma } from '../lib/auth';
 import nodemailer from 'nodemailer'
 

@@ -5,7 +5,7 @@ import {prisma} from '../lib/auth'
 import { validateAdmin, validateNotification, validateUpdateAdmin } from "../zod/validateAdmin";
 import {publisher} from '../lib/firebase'
 import {getMessaging} from 'firebase/messaging'
-import { verifyAdmin } from "../middlewares/verifyAdmin";
+import { verifyAdmin } from "../middlewares/verifyUser";
 
 const router = express.Router();
 

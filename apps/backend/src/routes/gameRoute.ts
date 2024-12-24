@@ -1,8 +1,8 @@
 import express from 'express'
 import {prisma} from '../lib/auth'
-import { verifyAdmin } from '../middlewares/verifyAdmin';
-import { validateGameDetails } from '../zod/validateGame';
-import { validateUser } from '../zod/validateUser';
+import { verifyAdmin } from '../middlewares/verifyUser';
+import { validateGameDetails } from '../zod/validateAdmin';
+import { validateUser } from '../zod/validateAdmin';
 import { authenticateToken } from '../middlewares/verifyUser';
 
 const router = express();

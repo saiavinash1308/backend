@@ -1,5 +1,5 @@
 import express, {Request} from 'express'
-import { verifyAdmin } from '../middlewares/verifyAdmin';
+import { verifyAdmin } from '../middlewares/verifyUser';
 import {prisma} from '../lib/auth'
 import { authenticateToken, UserRequest } from '../middlewares/verifyUser';
 

@@ -1,6 +1,6 @@
 import express from 'express'
 import {prisma} from '../lib/auth'
-import { validateBanner } from '../zod/validateBanner';
+import { validateBanner } from '../zod/validateAdmin';
 import { authenticateToken } from '../middlewares/verifyUser';
 import z from 'zod'
 
