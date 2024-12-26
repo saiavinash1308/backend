@@ -95,7 +95,6 @@ export class LudoGame{
     }
 
     public makeMove(playerId: string, piece: number){
-        console.log("Roll Dice socket requested: " + this.currentPlayer + " Socket Recieved: " + playerId);
         if(!this.isValidTurn(playerId)) return;
         if(piece < 0 || piece > 3) return;
         const diceValue = this.dice.getDiceValue();
