@@ -87,6 +87,7 @@ export class LudoGame{
         socketManager.broadcastToRoom(this.roomId, 'DICE_ROLLED', JSON.stringify({playerId, diceValue}))
         setTimeout(() => {
             if(diceValue !== 6 && this.board.checkAllPiecesAtStart(playerId)){
+                console.log("This is dice value in roll Dice: " + diceValue + " Current turn is called here");
                 this.updateTurn();
                 return
             }
@@ -105,6 +106,7 @@ export class LudoGame{
                 return;
             }
             if(diceValue !== 6){
+                console.log("I am getting here");
                 this.updateTurn();
             }
             else{
@@ -114,6 +116,7 @@ export class LudoGame{
     }
 
     public updateTurn(){
+        console.log("Current turn function");
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
         socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
