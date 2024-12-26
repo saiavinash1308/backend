@@ -1,5 +1,6 @@
 import { validateExit, validateInitGame, validateLudoMove, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
+import { appManager } from "../main/AppManager";
 import { roomManager } from "../room/RoomManager";
 import { User } from "./User";
 
@@ -77,6 +78,11 @@ class UserManager {
             gameManager.fetchLudoGameAndMovePiece(roomId, user.getSocket().id, parseInt(piece));
             //call the move function
 
+        })
+        user.getSocket().on("MOVE_UPDATED", async(data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            if(!roomId) return;
+            gameManager.fetchLudoGameAndUpdateMove(roomId, user.getSocket().id);
         })
         // user.getSocket().on('EXIT_GAME', async(data: string) => {
         //     const message = JSON.parse(data);

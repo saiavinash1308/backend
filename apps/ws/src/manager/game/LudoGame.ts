@@ -105,13 +105,19 @@ export class LudoGame{
                 this.endGame(playerId);
                 return;
             }
-            if(diceValue !== 6){
+            
+        }
+    }
+
+    public moveUpdate(playerId: string){
+        if(!this.isValidTurn(playerId)) return;
+        const diceValue = this.dice.getDiceValue();
+        if(diceValue !== 6){
                 console.log("I am getting here");
                 this.updateTurn();
-            }
-            else{
-                socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)        
-            }
+        }
+        else{
+           socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)        
         }
     }
 

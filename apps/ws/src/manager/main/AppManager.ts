@@ -36,10 +36,6 @@ export class AppManager{
         return this.pendingRoomMappings
     }
 
-    public getUserToRoomMappings(){
-        return this.userToRoomMapping
-    }
-
     public getPlayerSockets(roomId: string): GetPlayerSocketResponse{
         const room = this.rooms.get(roomId);
         if(room){
