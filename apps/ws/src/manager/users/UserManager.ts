@@ -1,3 +1,4 @@
+import rateLimiter from "../../auth/redis";
 import { validateExit, validateInitGame, validateLudoMove, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
 import { appManager } from "../main/AppManager";
@@ -57,6 +58,8 @@ class UserManager {
             await roomManager.createOrInsertIntoRoom(user, gameId)
         });
         user.getSocket().on('ROLL_DICE', async(data) => {
+            const socketId = user.getSocket().id;
+            if(!await rateLimiter.hasRollLimit(socketId)) return
             if(!data){
                 const response = JSON.stringify({ message: 'Invalid data' })
                 user.getSocket().emit('ROLL_ERROR', response)
@@ -65,9 +68,11 @@ class UserManager {
             const roomId = data;
             const isValidRoll = validateRoomId.safeParse({roomId});
             if(!isValidRoll.success) return
-            gameManager.fetchLudoGameAndRollDice(roomId, user.getSocket().id)
+            gameManager.fetchLudoGameAndRollDice(roomId, socketId)
         })
         user.getSocket().on("MOVE_PIECE", async(data) => {
+            const socketId = user.getSocket().id;
+            if(!await rateLimiter.hasMakeMoveLimit(socketId)) return
             if(!data){
                 user.getSocket().emit("MOVE_ERROR", 'Invalid data')
             }
@@ -75,7 +80,7 @@ class UserManager {
             const isValidMove = validateLudoMove.safeParse(message)
             if(!isValidMove.success) return 
             const {piece, roomId} = isValidMove.data;
-            gameManager.fetchLudoGameAndMovePiece(roomId, user.getSocket().id, parseInt(piece));
+            gameManager.fetchLudoGameAndMovePiece(roomId, socketId, parseInt(piece));
             //call the move function
 
         })
