@@ -30,7 +30,7 @@ export class RateLimiter {
     private async isAllowed(limiter: RateLimiterRedis, key: string): Promise<boolean> {
         try {
             const result = await limiter.consume(key); // Try to consume a point
-            return result.remainingPoints > 0;
+            return result.remainingPoints >= 0;
         } catch (err) {
             // Cast err to RateLimiterRes if it's a rate-limiting error
             if ((err as RateLimiterRes).msBeforeNext !== undefined) {
