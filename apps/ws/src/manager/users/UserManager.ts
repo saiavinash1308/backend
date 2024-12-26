@@ -67,18 +67,13 @@ class UserManager {
             gameManager.fetchLudoGameAndRollDice(roomId, user.getSocket().id)
         })
         user.getSocket().on("MOVE_PIECE", async(data) => {
-            console.log("Move piece called");
             if(!data){
                 user.getSocket().emit("MOVE_ERROR", 'Invalid data')
             }
             const message = JSON.parse(data);
-            console.log(message);
             const isValidMove = validateLudoMove.safeParse(message)
-            console.log("Checking move validity: " + isValidMove.success);
             if(!isValidMove.success) return 
-            console.log(isValidMove.data);
             const {piece, roomId} = isValidMove.data;
-            console.log("RoomId for move is: " + roomId + " Piece: " +piece);
             gameManager.fetchLudoGameAndMovePiece(roomId, user.getSocket().id, parseInt(piece));
             //call the move function
 
