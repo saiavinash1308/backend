@@ -129,6 +129,7 @@ export class LudoGame{
     }
 
     public forceUpdateTurn(playerId: string){
+        console.log(`Force update from ${playerId} expected ${this.currentPlayer}`);
         if(!this.isValidTurn(playerId)) return 
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
