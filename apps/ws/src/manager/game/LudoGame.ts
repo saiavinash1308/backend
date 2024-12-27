@@ -128,6 +128,15 @@ export class LudoGame{
         socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
     }
 
+    public forceUpdateTurn(playerId: string){
+        if(!this.isValidTurn(playerId)) return 
+        const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
+        this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
+        socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
+    }
+
+    
+
     public getRoomId(){
         return this.roomId
     }

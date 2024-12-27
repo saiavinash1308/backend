@@ -100,7 +100,7 @@ class UserManager {
             console.log("Next Turn")
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
-            gameManager.fetchLudoGameAndUpdateMove(roomId, user.getSocket().id);
+            gameManager.fetchLudoGameAndUpdateTurn(roomId, user.getSocket().id);
         })
         // user.getSocket().on('EXIT_GAME', async(data: string) => {
         //     const message = JSON.parse(data);

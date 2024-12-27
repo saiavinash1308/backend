@@ -48,6 +48,15 @@ export class GameManager{
         const ludogame = game as LudoGame
         ludogame.moveUpdate(playerId);
     }
+
+    fetchLudoGameAndUpdateTurn(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "LUDO")  return;
+        const ludogame = game as LudoGame
+        ludogame.forceUpdateTurn(playerId);
+    }
 }
 
 export const gameManager = GameManager.getInstance()
