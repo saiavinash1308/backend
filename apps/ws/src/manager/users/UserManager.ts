@@ -91,6 +91,7 @@ class UserManager {
 
         })
         user.getSocket().on("MOVE_UPDATED", async(data) => {
+            console.log("Turn Changed...")
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
             gameManager.fetchLudoGameAndUpdateMove(roomId, user.getSocket().id);
