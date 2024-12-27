@@ -60,7 +60,7 @@ class UserManager {
         user.getSocket().on('ROLL_DICE', async(data) => {
             const socketId = user.getSocket().id;
             if(!await rateLimiter.hasRollLimit(socketId)){
-                console.log("User have no  limit to roll dice");
+                console.log(`User ${socketId} have no  limit to roll dice`);
                 return
             }
             if(!data){
@@ -76,7 +76,7 @@ class UserManager {
         user.getSocket().on("MOVE_PIECE", async(data) => {
             const socketId = user.getSocket().id;
             if(!await rateLimiter.hasMakeMoveLimit(socketId)) {
-                console.log("User has not limit to move piece");
+                console.log(`User ${socketId} have no  limit to move piece`);
                 return
             }
             if(!data){

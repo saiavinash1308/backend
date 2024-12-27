@@ -11,12 +11,12 @@ export class RateLimiter {
             'roll-dice': new RateLimiterRedis({
                 storeClient: redis,
                 points: 1,
-                duration: 5
+                duration: 2
             }),
             'make-move': new RateLimiterRedis({
                 storeClient: redis,
                 points: 1,
-                duration: 3
+                duration: 2
             })
         }
     }
