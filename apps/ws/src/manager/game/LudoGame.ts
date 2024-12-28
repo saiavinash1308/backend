@@ -63,7 +63,7 @@ export class LudoGame{
         socketManager.broadcastToRoom(roomId, "START_GAME", message);
         setTimeout(() => {
             socketManager.broadcastToRoom(roomId, "CURRENT_TURN", this.currentPlayer)
-        }, 6000);
+        }, 1000);
     }
 
     getGameType(){
