@@ -82,7 +82,7 @@ export class LudoGame{
     public rollDice(playerId: string){
         console.log("Roll Dice socket requested: " + this.currentPlayer + " Socket Recieved: " + playerId);
         if(!this.isValidTurn(playerId)) return
-        if(this.dice.isDiceRolled()) return ;
+        
         const diceValue = this.dice.rollDice()
         const playerIndex = this.getPlayerIndex(playerId);
         socketManager.broadcastToRoom(this.roomId, 'DICE_ROLLED', JSON.stringify({playerId, diceValue}))
