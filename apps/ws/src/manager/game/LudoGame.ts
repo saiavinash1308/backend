@@ -82,16 +82,17 @@ export class LudoGame{
     public rollDice(playerId: string){
         console.log("Roll Dice socket requested: " + this.currentPlayer + " Socket Recieved: " + playerId);
         if(!this.isValidTurn(playerId)) return
+        if(this.dice.isDiceRolled()) return ;
         const diceValue = this.dice.rollDice()
         const playerIndex = this.getPlayerIndex(playerId);
         socketManager.broadcastToRoom(this.roomId, 'DICE_ROLLED', JSON.stringify({playerId, diceValue}))
-        setTimeout(() => {
-            if(diceValue !== 6 && this.board.checkAllPiecesAtStart(playerId)){
-                console.log("This is dice value in roll Dice: " + diceValue + " Current turn is called here");
-                this.updateTurn();
-                return
-            }
-        }, 1400);
+        // setTimeout(() => {
+        //     if(diceValue !== 6 && this.board.checkAllPiecesAtStart(playerId)){
+        //         console.log("This is dice value in roll Dice: " + diceValue + " Current turn is called here");
+        //         this.updateTurn();
+        //         return
+        //     }
+        // }, 1400);
         
     }
 
