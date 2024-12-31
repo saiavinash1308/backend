@@ -110,6 +110,8 @@ export class LudoGame{
         }
     }
 
+    //status check
+
     public moveUpdate(playerId: string){
         if(!this.isValidTurn(playerId)) return;
         const diceValue = this.dice.getDiceValue();
