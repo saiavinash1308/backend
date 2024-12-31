@@ -146,7 +146,7 @@ export class LudoGame{
     }
 
     private endGame(playerId: string){
-        //store details in the database
+        //store details in the db
         socketManager.broadcastToRoom(this.roomId, 'GAME_OVER', JSON.stringify({playerId}))   
     }
 }
