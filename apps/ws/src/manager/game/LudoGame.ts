@@ -106,7 +106,6 @@ export class LudoGame{
                 this.endGame(playerId);
                 return;
             }
-            this.updateTurn();
             
         }
     }

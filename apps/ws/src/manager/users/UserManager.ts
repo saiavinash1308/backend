@@ -96,13 +96,14 @@ class UserManager {
             if(!roomId) return;
             gameManager.fetchLudoGameAndUpdateMove(roomId, user.getSocket().id);
         })
-        user.getSocket().on("TURN_UPDATED", async(data) => {
-            const socketId = user.getSocket().id;
-            console.log("Next Turn issued by socketId: " + socketId);
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
-            if(!roomId) return;
-            gameManager.fetchLudoGameAndUpdateTurn(roomId, socketId);
-        })
+        // user.getSocket().on("TURN_UPDATED", async(data) => {
+        //     const socketId = user.getSocket().id;
+        //     console.log("Next Turn issued by socketId: " + socketId);
+        //     const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+        //     if(!roomId) return;
+        //     gameManager.fetchLudoGameAndUpdateTurn(roomId, socketId);
+        // })
+        
         // user.getSocket().on('EXIT_GAME', async(data: string) => {
         //     const message = JSON.parse(data);
         //     if(!message){
