@@ -14,6 +14,7 @@ export class LudoBoard {
     private turnPositions: number[] = [50, 11, 24, 37];
     private sockets: Socket[];
     private userToPiecesMap: Map<string, number[]> = new Map()
+    private isPieceKilled: boolean = false;
 
 
     constructor(sockets: Socket[], roomId: string) {
@@ -67,12 +68,21 @@ export class LudoBoard {
                         this.userToPiecesMap.set(currentOpponent, opponentPieces)
                         const message = JSON.stringify({playerId: currentOpponent, pieceId: j})
                         socketManager.broadcastToRoom(this.roomId, 'KILL_PIECE', message)
+                        this.setIsPieceKilled(true);
                         return true
                     }
                 }
             }
         }
         return false;
+    }
+
+    public setIsPieceKilled(status: boolean){
+        this.isPieceKilled = true;
+    }
+
+    public getIsPieceKilled(){
+        return this.isPieceKilled;
     }
 
     public checkWin(playerId: string){

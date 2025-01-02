@@ -62,7 +62,6 @@ export class LudoGame{
         socketManager.broadcastToRoom(roomId, "STOP_SEARCH", 'Stop Searching');
         socketManager.broadcastToRoom(roomId, "START_GAME", message);
         setTimeout(() => {
-            socketManager.broadcastToRoom(roomId, "CURRENT_TURN_TEST_1", this.currentPlayer)
             socketManager.broadcastToRoom(roomId, "CURRENT_TURN", this.currentPlayer)
         }, 1000);
     }
@@ -90,7 +89,6 @@ export class LudoGame{
         setTimeout(() => {
             if(diceValue !== 6 && this.board.checkAllPiecesAtStart(playerId)){
                 console.log("This is dice value in roll Dice: " + diceValue + " Current turn is called here");
-                socketManager.broadcastToRoom(this.roomId, "CURRENT_TURN_TEST_3", this.currentPlayer)
                 this.updateTurn();
                 return
             }
@@ -117,14 +115,15 @@ export class LudoGame{
     public moveUpdate(playerId: string){
         if(!this.isValidTurn(playerId)) return;
         const diceValue = this.dice.getDiceValue();
+        if(this.board.getIsPieceKilled()){
+            socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
+            this.board.setIsPieceKilled(false);
+        }
         if(diceValue !== 6){
-                socketManager.broadcastToRoom(this.roomId, "CURRENT_TURN_TEST_2", this.currentPlayer)
                 this.updateTurn();
                 return;
         }
-        else{
-           socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)        
-        }
+        socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)        
     }
 
     public updateTurn(){
@@ -138,7 +137,6 @@ export class LudoGame{
         if(!this.isValidTurn(playerId)) return 
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
-        socketManager.broadcastToRoom(this.roomId, "CURRENT_TURN_TEST_4", this.currentPlayer)
         socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
     }
 
