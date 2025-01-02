@@ -62,6 +62,7 @@ export class LudoGame{
         socketManager.broadcastToRoom(roomId, "STOP_SEARCH", 'Stop Searching');
         socketManager.broadcastToRoom(roomId, "START_GAME", message);
         setTimeout(() => {
+            socketManager.broadcastToRoom(roomId, "CURRENT_TURN_TEST_1", this.currentPlayer)
             socketManager.broadcastToRoom(roomId, "CURRENT_TURN", this.currentPlayer)
         }, 1000);
     }
@@ -116,18 +117,19 @@ export class LudoGame{
         if(!this.isValidTurn(playerId)) return;
         const diceValue = this.dice.getDiceValue();
         if(diceValue !== 6){
-                console.log("I am getting here");
                 this.updateTurn();
+                return;
         }
         else{
+            socketManager.broadcastToRoom(this.roomId, "CURRENT_TURN_TEST_2", this.currentPlayer)
            socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)        
         }
     }
 
     public updateTurn(){
-        console.log("Current turn function");
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
+        socketManager.broadcastToRoom(this.roomId, "CURRENT_TURN_TEST_3", this.currentPlayer)
         socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
     }
 
@@ -136,6 +138,7 @@ export class LudoGame{
         if(!this.isValidTurn(playerId)) return 
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
+        socketManager.broadcastToRoom(this.roomId, "CURRENT_TURN_TEST_4", this.currentPlayer)
         socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
     }
 
