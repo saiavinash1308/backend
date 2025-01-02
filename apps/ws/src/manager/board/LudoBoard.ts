@@ -10,8 +10,8 @@ export class LudoBoard {
     private roomId: string
     private safePositions: number[] = [0, 8, 13, 21, 26, 34, 39, 47];
     private startPositions: number[] = [39, 0, 13, 26];
-    private endPositions: number[] = [105, 205, 305, 405];
-    private turnPositions: number[] = [50, 11, 24, 37];
+    private endPositions: number[] = [405, 105, 205, 305];
+    private turnPositions: number[] = [37, 50, 11, 24];
     private sockets: Socket[];
     private userToPiecesMap: Map<string, number[]> = new Map()
     private isPieceKilled: boolean = false;
@@ -32,9 +32,9 @@ export class LudoBoard {
             this.endPositions = [105, 305];
         }
         else if(playerCount === 4){ 
-            this.startPositions = [0, 13, 26, 39];
-            this.turnPositions = [50, 11, 24, 37];
-            this.endPositions = [105, 205, 305, 405];
+            this.startPositions = [39, 0, 13, 26];
+            this.turnPositions = [37, 50, 11, 24];
+            this.endPositions = [405, 105, 205, 305];
         }
         for(let i = 0; i < playerCount; i++){
             this.userToPiecesMap.set(sockets[i].id, [-1, -1, -1, -1]);
