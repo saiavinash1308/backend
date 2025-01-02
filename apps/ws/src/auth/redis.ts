@@ -11,12 +11,17 @@ export class RateLimiter {
             'roll-dice': new RateLimiterRedis({
                 storeClient: redis,
                 points: 1,
-                duration: 2
+                duration: 1
             }),
             'make-move': new RateLimiterRedis({
                 storeClient: redis,
                 points: 1,
-                duration: 2
+                duration: 1
+            }),
+            'move-updated': new RateLimiterRedis({
+                storeClient: redis,
+                points: 1,
+                duration: 1,
             })
         }
     }
@@ -51,6 +56,12 @@ export class RateLimiter {
         const limiter = this.rateLimiters['make-move'];
         const key = `make-move-${socketId}`;
         return await this.isAllowed(limiter, key);
+    }
+
+    public async hasMoveUpdateLimit(socketId: string){
+        const limitter = this.rateLimiters['move-updated'];
+        const key = `move-updated-${socketId}`
+        return await this.isAllowed(limitter, key);
     }
 }
 
