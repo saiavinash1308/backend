@@ -9,7 +9,7 @@ type Piece = {
 export class LudoBoard {
     private roomId: string
     private safePositions: number[] = [0, 8, 13, 21, 26, 34, 39, 47];
-    private startPositions: number[] = [0, 13, 26, 39];
+    private startPositions: number[] = [39, 0, 13, 26];
     private endPositions: number[] = [105, 205, 305, 405];
     private turnPositions: number[] = [50, 11, 24, 37];
     private sockets: Socket[];
