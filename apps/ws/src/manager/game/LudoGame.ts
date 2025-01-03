@@ -98,12 +98,10 @@ export class LudoGame{
 
     public makeMove(playerId: string, piece: number){
         if(!this.isValidTurn(playerId)) return;
-        if(this.board.getIsPieceMoved()) return;
         if(piece < 0 || piece > 3) return;
         const diceValue = this.dice.getDiceValue();
         const isMoveValid = this.board.makeMove(playerId, piece, diceValue);
         if(isMoveValid){
-            this.board.setIsPieceMoved(true);
             if(this.board.checkWin(playerId)){
                 this.endGame(playerId);
                 return;
@@ -117,7 +115,6 @@ export class LudoGame{
     public moveUpdate(playerId: string){
         if(!this.isValidTurn(playerId)) return;
         const diceValue = this.dice.getDiceValue();
-        this.board.setIsPieceMoved(false);
         if(this.board.getIsPieceKilled()){
             socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
             this.board.setIsPieceKilled(false);
