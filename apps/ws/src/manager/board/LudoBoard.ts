@@ -20,6 +20,7 @@ export class LudoBoard {
     private sockets: Socket[];
     private userToPiecesMap: Map<string, number[]> = new Map()
     private isPieceKilled: boolean = false;
+    private isPieceMoved = false;
 
 
     constructor(sockets: Socket[], roomId: string) {
@@ -45,6 +46,14 @@ export class LudoBoard {
             this.userToPiecesMap.set(sockets[i].id, [-1, -1, -1, -1]);
         }
         
+    }
+
+    public getIsPieceMoved(){
+        return this.isPieceMoved
+    }
+
+    public setIsPieceMoved(status: boolean){
+        this.isPieceMoved = status;
     }
 
     private checkPieceAtStart(playerId: string, piece: number){

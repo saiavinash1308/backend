@@ -82,7 +82,7 @@ export class LudoGame{
     public rollDice(playerId: string){
         console.log("Roll Dice socket requested: " + this.currentPlayer + " Socket Recieved: " + playerId);
         if(!this.isValidTurn(playerId)) return
-        
+        this.board.setIsPieceMoved(false);
         const diceValue = this.dice.rollDice()
         const playerIndex = this.getPlayerIndex(playerId);
         socketManager.broadcastToRoom(this.roomId, 'DICE_ROLLED', JSON.stringify({playerId, diceValue}))
@@ -102,6 +102,7 @@ export class LudoGame{
         const diceValue = this.dice.getDiceValue();
         const isMoveValid = this.board.makeMove(playerId, piece, diceValue);
         if(isMoveValid){
+            this.board.setIsPieceMoved(true);
             if(this.board.checkWin(playerId)){
                 this.endGame(playerId);
                 return;
@@ -115,6 +116,7 @@ export class LudoGame{
     public moveUpdate(playerId: string){
         if(!this.isValidTurn(playerId)) return;
         const diceValue = this.dice.getDiceValue();
+        if(!this.board.getIsPieceMoved()) return
         if(this.board.getIsPieceKilled()){
             socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
             this.board.setIsPieceKilled(false);
