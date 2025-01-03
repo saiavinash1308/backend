@@ -64,11 +64,16 @@ export class LudoBoard {
             return false
         }
         for(let i = 0; i < this.sockets.length; i++){
-            const currentOpponent = this.sockets[i].id
+            const currentOpponent = this.sockets[i].id;
+            console.log("This is CurrentOpponent: " + currentOpponent);
             if(currentOpponent !== playerId){
                 const opponentPieces = this.userToPiecesMap.get(currentOpponent);
-                if(!opponentPieces) continue;
+                if(!opponentPieces) {
+                    console.log(`No pieces found for opponent ${currentOpponent}`);
+                    continue;
+                };
                 for(let j = 0; j < 4; j++){
+                    console.log(`This is opponent piece position ${opponentPieces[j]} and given piecePosition ${newPosition} can kill ${opponentPieces[j] === newPosition}`)
                     if(opponentPieces[j] === newPosition){
                         opponentPieces[j] = -1;
                         this.userToPiecesMap.set(currentOpponent, opponentPieces)
@@ -148,9 +153,12 @@ export class LudoBoard {
         pieces[pieceId] = piecePositon;
         this.userToPiecesMap.set(playerId, pieces);
         const message = JSON.stringify({playerId, pieceId, piecePositon})
-        socketManager.broadcastToRoom(this.roomId, 'UPDATE_MOVE', message)
+        
 
-        if(this.checkAndKill(playerId, pieceId)) return true;
+        if(this.checkAndKill(playerId, pieceId)){
+            socketManager.broadcastToRoom(this.roomId, 'UPDATE_MOVE', message);
+            return true;
+        };
         return true;
     }
 
