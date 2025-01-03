@@ -87,7 +87,7 @@ class UserManager {
             if(!isValidMove.success) return 
             const {piece, roomId} = isValidMove.data;
             gameManager.fetchLudoGameAndMovePiece(roomId, socketId, parseInt(piece));
-            //call the move function
+            //call the move
 
         })
         user.getSocket().on("MOVE_UPDATED", async(data) => {
