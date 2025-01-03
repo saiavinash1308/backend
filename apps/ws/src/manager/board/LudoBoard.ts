@@ -129,10 +129,11 @@ export class LudoBoard {
             piecePositon++;
             if(piecePositon - 1 === this.turnPositions[playerIndex]){
                 piecePositon = this.endPositions[playerIndex]  + ((diceValue - i) - 5);
-                return true
+                break
             }
             else if(piecePositon === 52){
                 piecePositon = diceValue - i;
+                break
             }
         }
         pieces[pieceId] = piecePositon;
