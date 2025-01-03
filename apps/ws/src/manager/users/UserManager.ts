@@ -94,7 +94,6 @@ class UserManager {
             const socketId = user.getSocket().id;
             console.log(`Move Updated called by ${socketId}`);
             if(!await rateLimiter.hasMoveUpdateLimit(socketId)) return;
-            console.log("Turn Changed...")
             const roomId = appManager.getUserToRoomMapping().get(socketId);
             if(!roomId) return;
             gameManager.fetchLudoGameAndUpdateMove(roomId, socketId);
