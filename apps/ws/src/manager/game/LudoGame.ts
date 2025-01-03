@@ -130,6 +130,7 @@ export class LudoGame{
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
         socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
+        socketManager.broadcastToRoom(this.roomId, "PIECE_POSITIONS", this.board.printAllPositions())
     }
 
     public forceUpdateTurn(playerId: string){

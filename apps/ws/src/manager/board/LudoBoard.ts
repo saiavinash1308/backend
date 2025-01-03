@@ -6,6 +6,11 @@ type Piece = {
 
 }
 
+type CheckData = {
+    key: string;
+    value: number[];
+}
+
 export class LudoBoard {
     private roomId: string
     private safePositions: number[] = [0, 8, 13, 21, 26, 34, 39, 47];
@@ -91,6 +96,14 @@ export class LudoBoard {
         const playerIndex = this.sockets.findIndex(socket => socket.id === playerId);
         if(playerIndex === -1) return false;
         return pieces.every((piece) => piece === this.endPositions[playerIndex])
+    }
+
+    public printAllPositions(){
+        const positions: CheckData[] = []
+        for (const [key, value] of this.userToPiecesMap) {
+            const data = {key, value};
+        }
+        return JSON.stringify(positions);
     }
 
     makeMove(playerId: string, pieceId: number, diceValue: number){
