@@ -96,6 +96,7 @@ export class LudoBoard {
         return this.isPieceKilled;
     }
 
+
     public checkWin(playerId: string){
         const pieces = this.userToPiecesMap.get(playerId);
         if(!pieces) return false;
@@ -146,11 +147,8 @@ export class LudoBoard {
         this.userToPiecesMap.set(playerId, pieces);
         const message = JSON.stringify({playerId, pieceId, piecePositon})
         
-
-        if(this.checkAndKill(playerId, pieceId)){
-            socketManager.broadcastToRoom(this.roomId, 'UPDATE_MOVE', message);
-            return true;
-        };
+        socketManager.broadcastToRoom(this.roomId, 'UPDATE_MOVE', message);
+        if(this.checkAndKill(playerId, pieceId)) return true;
         return true;
     }
 
