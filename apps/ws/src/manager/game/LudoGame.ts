@@ -118,6 +118,7 @@ export class LudoGame{
         if(this.board.getIsPieceKilled()){
             socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
             this.board.setIsPieceKilled(false);
+            return;
         }
         if(diceValue !== 6){
                 this.updateTurn();
