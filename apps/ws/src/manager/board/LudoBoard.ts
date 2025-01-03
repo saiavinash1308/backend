@@ -60,6 +60,7 @@ export class LudoBoard {
         return pieces.every((piece) => piece === -1)
     }
     private checkAndKill(playerId: string, newPosition: number){
+        console.log("Checking for kills");
         if(this.safePositions.includes(newPosition)){
             return false
         }
