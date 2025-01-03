@@ -102,6 +102,7 @@ export class LudoBoard {
         const positions: CheckData[] = []
         for (const [key, value] of this.userToPiecesMap) {
             const data = {key, value};
+            positions.push(data);
         }
         return JSON.stringify(positions);
     }
