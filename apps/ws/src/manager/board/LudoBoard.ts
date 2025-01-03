@@ -115,7 +115,6 @@ export class LudoBoard {
     }
 
     makeMove(playerId: string, pieceId: number, diceValue: number){
-        console.log("Started moving piece" + pieceId);
         const pieces = this.userToPiecesMap.get(playerId);
         if(!pieces) return false;
         if(diceValue === 6 && this.checkPieceAtStart(playerId, pieceId)){
@@ -146,9 +145,8 @@ export class LudoBoard {
         pieces[pieceId] = piecePositon;
         this.userToPiecesMap.set(playerId, pieces);
         const message = JSON.stringify({playerId, pieceId, piecePositon})
-        
         socketManager.broadcastToRoom(this.roomId, 'UPDATE_MOVE', message);
-        if(this.checkAndKill(playerId, pieceId)) return true;
+        if(this.checkAndKill(playerId, piecePositon)) return true;
         return true;
     }
 
