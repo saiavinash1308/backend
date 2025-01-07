@@ -20,7 +20,8 @@ class UserManager {
     }
 
     addUser(user: User) {
-        this.addHandler(user)
+        this.addLudoHandler(user)
+        this.addFastLudoHandler(user);
         this.onlineUsers.set(user.getSocket().id, user);
     }
 
@@ -41,7 +42,7 @@ class UserManager {
         const randomValue = Math.floor(Math.random() * (150000 - 100000 + 1)) + 100000;
         return randomValue
     }
-    private addHandler(user: User){
+    private addLudoHandler(user: User){
         user.getSocket().on('GET_ONLINE_PLAYERS', () => {
             const onlineUserSize = this.getOnlinePlayers();
             user.getSocket().emit('ONLINE_PLAYERS', onlineUserSize)
@@ -98,13 +99,13 @@ class UserManager {
             if(!roomId) return;
             gameManager.fetchLudoGameAndUpdateMove(roomId, socketId);
         })
-        // user.getSocket().on("TURN_UPDATED", async(data) => {
-        //     const socketId = user.getSocket().id;
-        //     console.log("Next Turn issued by socketId: " + socketId);
-        //     const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
-        //     if(!roomId) return;
-        //     gameManager.fetchLudoGameAndUpdateTurn(roomId, socketId);
-        // })
+        user.getSocket().on("TURN_UPDATED", async(data) => {
+            const socketId = user.getSocket().id;
+            console.log("Next Turn issued by socketId: " + socketId);
+            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            if(!roomId) return;
+            gameManager.fetchLudoGameAndUpdateTurn(roomId, socketId);
+        })
         
         // user.getSocket().on('EXIT_GAME', async(data: string) => {
         //     const message = JSON.parse(data);
@@ -118,6 +119,16 @@ class UserManager {
         //     const {roomId} = isValidExit.data
         //     roomManager.exitRoom(user, roomId)
         // })
+    }
+
+    private addFastLudoHandler(user: User){
+        user.getSocket().on('TIME_UP', (data) => {
+            const socketId = user.getSocket().id;
+            console.log("Next Turn issued by socketId: " + socketId);
+            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            if(!roomId) return;
+            gameManager.fetchFastLudoGameAndEndGame(roomId);
+        })
     }
 }
 

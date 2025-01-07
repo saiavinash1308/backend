@@ -1,5 +1,6 @@
 import { GameType } from "../../types/GameTypes";
 import { appManager } from "../main/AppManager";
+import { FastLudoGame } from "./FastLudoGame";
 import { LudoGame } from "./LudoGame";
 
 export class GameManager{
@@ -56,6 +57,15 @@ export class GameManager{
         if(!room || room.getGameType() !== "LUDO")  return;
         const ludogame = game as LudoGame
         ludogame.forceUpdateTurn(playerId);
+    }
+
+    fetchFastLudoGameAndEndGame(roomId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "FAST_LUDO")  return;
+        const fastludogame = game as FastLudoGame;
+        fastludogame.timeUp();
     }
 }
 
