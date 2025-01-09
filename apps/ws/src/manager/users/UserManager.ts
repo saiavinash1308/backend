@@ -101,7 +101,7 @@ class UserManager {
         })
         user.getSocket().on("TURN_UPDATED", async(data) => {
             const socketId = user.getSocket().id;
-            if(!await rateLimiter.handleForceUpdateMove(socketId)) return;
+            if(!await rateLimiter.handleForceUpdateMove()) return;
             console.log("Next Turn issued by socketId: " + socketId);
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;

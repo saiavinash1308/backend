@@ -69,9 +69,9 @@ export class RateLimiter {
         return await this.isAllowed(limitter, key);
     }
 
-    public async handleForceUpdateMove(socketId: string){
+    public async handleForceUpdateMove(){
         const limitter = this.rateLimiters['force-update'];
-        const key = `force-update-${socketId}`
+        const key = `force-update`
         return await this.isAllowed(limitter, key);
     }
 }
