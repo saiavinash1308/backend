@@ -45,6 +45,8 @@ export class FastLudoGame{
     private dice: Dice = new Dice();
     private room: Room;
     private currentPlayer: string;
+    private turnTimer: NodeJS.Timeout | null = null; // Timer ID for the turn
+    private turnTimeLimit = 10000;
 
     constructor(roomId: string){
         this.roomId = roomId
@@ -63,8 +65,21 @@ export class FastLudoGame{
         socketManager.broadcastToRoom(roomId, "STOP_SEARCH", 'Stop Searching');
         socketManager.broadcastToRoom(roomId, "START_GAME", message);
         setTimeout(() => {
-            socketManager.broadcastToRoom(roomId, "CURRENT_TURN", this.currentPlayer)
+            socketManager.broadcastToRoom(roomId, "CURRENT_TURN", this.currentPlayer);
+            this.startTurnTimer();
         }, 1000);
+    }
+
+    private startTurnTimer() {
+        if (this.turnTimer) clearTimeout(this.turnTimer); // Clear any existing timer
+        this.turnTimer = setTimeout(() => {
+            console.log(`Timer expired for player: ${this.currentPlayer}`);
+            this.updateTurn(); // Automatically update turn after 10 seconds
+        }, this.turnTimeLimit);
+    }
+
+    private resetTurnTimer() {
+        if (this.turnTimer) clearTimeout(this.turnTimer); // Clear existing timer
     }
 
     getGameType(){
@@ -115,18 +130,22 @@ export class FastLudoGame{
             this.board.setIsPieceKilled(false);
             return;
         }
-        if(diceValue !== 6){
-                this.updateTurn();
-                return;
+        if(diceValue === 6){
+            socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer);
+            return;
         }
-        socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)        
+        this.updateTurn();
+        return;
+                
     }
 
-    public updateTurn(){
+    private updateTurn(){
+        this.resetTurnTimer(); 
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
         socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
         socketManager.broadcastToRoom(this.roomId, "PIECE_POSITIONS", this.board.printAllPositions())
+        this.startTurnTimer();
     }
 
     public forceUpdateTurn(playerId: string){
