@@ -85,6 +85,7 @@ export class LudoGame{
     public rollDice(playerId: string){
         console.log("Roll Dice socket requested: " + this.currentPlayer + " Socket Recieved: " + playerId);
         if(!this.isValidTurn(playerId)) return
+        this.resetTurnTimer(); 
         this.board.setIsPieceMoved(false);
         const diceValue = this.dice.rollDice()
         const playerIndex = this.getPlayerIndex(playerId);
@@ -96,6 +97,7 @@ export class LudoGame{
                 return
             }
         }, 1400);
+        this.startTurnTimer(); 
         
     }
 
@@ -112,6 +114,7 @@ export class LudoGame{
     }
 
     public makeMove(playerId: string, piece: number){
+        this.resetTurnTimer();
         if(!this.isValidTurn(playerId)) return;
         if(piece < 0 || piece > 3) return;
         const diceValue = this.dice.getDiceValue();
@@ -135,10 +138,12 @@ export class LudoGame{
         if(this.board.getIsPieceKilled()){
             socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
             this.board.setIsPieceKilled(false);
+            this.startTurnTimer();
             return;
         }
         if(diceValue === 6){
             socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer);
+            this.startTurnTimer();
             return;
         }
         this.updateTurn();
