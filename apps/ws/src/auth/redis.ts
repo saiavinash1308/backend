@@ -76,6 +76,7 @@ export class RateLimiter {
     }
 }
 
+//change
 const rateLimiter = RateLimiter.getInstance();
 Object.freeze(rateLimiter);
 
