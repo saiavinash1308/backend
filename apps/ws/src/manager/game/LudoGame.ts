@@ -111,6 +111,10 @@ export class LudoGame{
         }
     }
 
+    public getCurrentTurn(){
+        return this.currentPlayer;
+    }
+
     //status check
 
     public moveUpdate(playerId: string){

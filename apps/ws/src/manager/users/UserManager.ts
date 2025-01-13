@@ -93,10 +93,11 @@ class UserManager {
         })
         user.getSocket().on("MOVE_UPDATED", async(data) => {
             const socketId = user.getSocket().id;
-            console.log(`Move Updated called by ${socketId}`);
-            if(!await rateLimiter.hasMoveUpdateLimit(socketId)) return;
             const roomId = appManager.getUserToRoomMapping().get(socketId);
             if(!roomId) return;
+            const currentTurn = gameManager.fetchLudoGameAndGetCurrentTurn(roomId);
+            console.log(`Move Updated called by ${socketId}`);
+            if(!await rateLimiter.hasMoveUpdateLimit(socketId)) return;
             gameManager.fetchLudoGameAndUpdateMove(roomId, socketId);
         })
         user.getSocket().on("TURN_UPDATED", async(data) => {

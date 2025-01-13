@@ -88,6 +88,21 @@ export class GameManager{
         return
     }
 
+    fetchLudoGameAndGetCurrentTurn(roomId: string){
+        const game = this.games.get(roomId);
+        if(!game) return "";
+        const room = appManager.getRoom(roomId);
+        if(!room) return "";
+        if(room.getGameType() === "LUDO"){
+            const ludogame = game as LudoGame
+            return ludogame.getCurrentTurn()
+        }
+        else if(room.getGameType() === "FAST_LUDO"){
+            const fastludogame = game as FastLudoGame
+            return fastludogame.getCurrentTurn();
+        }
+    }
+
     fetchFastLudoGameAndEndGame(roomId: string){
         const game = this.games.get(roomId);
         if(!game) return;

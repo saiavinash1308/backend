@@ -137,6 +137,10 @@ export class FastLudoGame{
         socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
     }
 
+    public getCurrentTurn(){
+        return this.currentPlayer;
+    }
+
     
 
     public getRoomId(){
