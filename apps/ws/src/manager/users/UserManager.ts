@@ -96,7 +96,7 @@ class UserManager {
             const roomId = appManager.getUserToRoomMapping().get(socketId);
             if(!roomId) return;
             const currentTurn = gameManager.fetchLudoGameAndGetCurrentTurn(roomId);
-            console.log(`Move Updated called by ${socketId}`);
+            console.log(`Move Updated called by ${socketId} expected ${currentTurn}`);
             if(!await rateLimiter.hasMoveUpdateLimit(socketId)) return;
             gameManager.fetchLudoGameAndUpdateMove(roomId, socketId);
         })
