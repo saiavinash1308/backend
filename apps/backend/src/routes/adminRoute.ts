@@ -12,7 +12,7 @@ const router = express.Router();
 // @route   POST /api/admin/create
 // @desc    Create a new admin
 // @access  Private/Admin
-router.post('/create', verifyAdmin ,async(req, res) => {
+router.post('/create' ,async(req, res) => {
   const {name, email, password, role} = req.body
   try {
     const adminValidate = validateAdmin.safeParse(req.body)
@@ -104,6 +104,15 @@ router.get("/fetchadmin/:id", verifyAdmin ,async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+
+router.get("/fetchallusers", verifyAdmin, async(req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+    return res.status(200).json({users})
+  } catch (error) {
+    return res.status(500).json({message: "Internal server error"})
+  }
+})
 
 // @route   PUT /api/admin/edit/:id
 // @desc    Edit an admin by ID
