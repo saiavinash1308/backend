@@ -114,7 +114,7 @@ router.get("/fetchallusers", verifyAdmin, async(req, res) => {
   }
 })
 
-
+//fetch all withdraw
 router.get("fetchallwithdraw", verifyAdmin, async(req, res) => {
   try {
     const withdraws = await prisma.withdraw.findMany();
