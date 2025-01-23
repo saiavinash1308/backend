@@ -115,10 +115,10 @@ router.get("/fetchallusers", verifyAdmin, async(req, res) => {
 })
 
 
-router.get("/fetchalltransactions", verifyAdmin, async(req, res) => {
+router.get("fetchallwithdraw", verifyAdmin, async(req, res) => {
   try {
-    const transactions = await prisma.payments.findMany();
-    return res.status(200).json({transactions});
+    const withdraws = await prisma.withdraw.findMany();
+    return res.status(200).json({withdraws});
   } catch (error) {
     return res.status(500).json({message: "Internal server error"})
   }

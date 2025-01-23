@@ -19,6 +19,7 @@ model User {
   rooms RoomPlayer[]
   wallet     Wallet?
   winnings Room[]
+  withdraws Withdraw[]
 }
 
 model Wallet {
@@ -61,8 +62,6 @@ model Payments {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   user          User          @relation(fields: [userId], references: [userId])
-
-
 }
 
 model Game {
@@ -103,6 +102,21 @@ model Ticket {
   status      TicketStatus @default(Open)
   createdAt   DateTime     @default(now())
   image       String?
+}
+
+model Withdraw {
+  withdrawId  String  @id @default(cuid())
+  userId       String
+  user         User   @relation(fields: [userId], references: [userId])
+  amount       Float
+  status       WithdrawalStatus  @default(PENDING) // PENDING, SUCCESS, FAILED
+  timestamp    DateTime @default(now())
+}
+
+enum WithdrawalStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }
 
 enum PaymentStatus {
