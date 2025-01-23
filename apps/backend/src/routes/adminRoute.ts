@@ -114,6 +114,16 @@ router.get("/fetchallusers", verifyAdmin, async(req, res) => {
   }
 })
 
+
+router.get("/fetchalltransactions", verifyAdmin, async(req, res) => {
+  try {
+    const transactions = await prisma.payments.findMany();
+    return res.status(200).json({transactions});
+  } catch (error) {
+    return res.status(500).json({message: "Internal server error"})
+  }
+})
+
 // @route   PUT /api/admin/edit/:id
 // @desc    Edit an admin by ID
 // @access  Private/Admin
