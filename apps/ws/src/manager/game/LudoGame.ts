@@ -61,10 +61,10 @@ export class LudoGame{
         const newUsers = new Array<{socketId: string}>();
         this.players.forEach((player) => newUsers.push({socketId: player}))
         const message = JSON.stringify({roomId, users: newUsers})
-        socketManager.broadcastToRoom(roomId, "STOP_SEARCH", 'Stop Searching');
-        socketManager.broadcastToRoom(roomId, "START_GAME", message);
+        socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_STOP_SEARCH", 'Stop Searching');
+        socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_START_GAME", message);
         setTimeout(() => {
-            socketManager.broadcastToRoom(roomId, "CURRENT_TURN", this.currentPlayer)
+            socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_CURRENT_TURN", this.currentPlayer)
             this.startTurnTimer();
         }, 1000);
     }
@@ -89,7 +89,7 @@ export class LudoGame{
         this.board.setIsPieceMoved(false);
         const diceValue = this.dice.rollDice()
         const playerIndex = this.getPlayerIndex(playerId);
-        socketManager.broadcastToRoom(this.roomId, 'DICE_ROLLED', JSON.stringify({playerId, diceValue}))
+        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_DICE_ROLLED', JSON.stringify({playerId, diceValue}))
         setTimeout(() => {
             if(diceValue !== 6 && this.board.checkAllPiecesAtStart(playerId)){
                 console.log("This is dice value in roll Dice: " + diceValue + " Current turn is called here");
@@ -136,13 +136,13 @@ export class LudoGame{
         const diceValue = this.dice.getDiceValue();
         if(!this.board.getIsPieceMoved()) return
         if(this.board.getIsPieceKilled()){
-            socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
+            socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_CURRENT_TURN', this.currentPlayer)
             this.board.setIsPieceKilled(false);
             this.startTurnTimer();
             return;
         }
         if(diceValue === 6){
-            socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer);
+            socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_CURRENT_TURN', this.currentPlayer);
             this.startTurnTimer();
             return;
         }
@@ -155,8 +155,8 @@ export class LudoGame{
         this.resetTurnTimer(); 
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
-        socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
-        socketManager.broadcastToRoom(this.roomId, "PIECE_POSITIONS", this.board.printAllPositions())
+        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_CURRENT_TURN', this.currentPlayer)
+        socketManager.broadcastToRoom(this.roomId, "CLASSIC_LUDO_PIECE_POSITIONS", this.board.printAllPositions())
         this.startTurnTimer();
     }
 
@@ -165,7 +165,7 @@ export class LudoGame{
         if(!this.isValidTurn(playerId)) return 
         const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
         this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
-        socketManager.broadcastToRoom(this.roomId, 'CURRENT_TURN', this.currentPlayer)
+        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_CURRENT_TURN', this.currentPlayer)
     }
 
     public getRoomId(){
@@ -174,6 +174,6 @@ export class LudoGame{
 
     private endGame(playerId: string){
         //store details in the db
-        socketManager.broadcastToRoom(this.roomId, 'GAME_OVER', JSON.stringify({playerId}))   
+        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_GAME_OVER', JSON.stringify({playerId}))   
     }
 }

@@ -132,7 +132,7 @@ export class LudoBoard {
             pieces[pieceId] = startPosition;
             this.userToPiecesMap.set(playerId, pieces);
             const message = JSON.stringify({playerId, pieceId, piecePositon: startPosition})
-            socketManager.broadcastToRoom(this.roomId, 'UPDATE_MOVE', message)
+            socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_UPDATE_MOVE', message)
             return true;
         }
         if(this.checkPieceAtStart(playerId, pieceId)) return false
@@ -154,7 +154,7 @@ export class LudoBoard {
         pieces[pieceId] = piecePositon;
         this.userToPiecesMap.set(playerId, pieces);
         const message = JSON.stringify({playerId, pieceId, piecePositon})
-        socketManager.broadcastToRoom(this.roomId, 'UPDATE_MOVE', message);
+        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_UPDATE_MOVE', message);
         if(this.checkAndKill(playerId, piecePositon)) return true;
         return true;
     }
