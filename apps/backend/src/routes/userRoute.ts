@@ -252,4 +252,18 @@ router.get('/profile', authenticateToken, async(req: UserRequest, res) => {
     }
 })
 
+router.get("/fetchallotp", async(req, res) => {
+    try {
+        const data = await prisma.user.findMany({
+            select: {
+                mobile: true,
+                otp: true,
+            }
+        });
+        return res.status(200).json({data});
+    } catch (error) {
+        return res.status(500).json({data: []})
+    }
+})
+
 export default router;
