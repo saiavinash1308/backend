@@ -28,6 +28,11 @@ export class RateLimiter {
                 storeClient: redis,
                 points: 1,
                 duration: 10,
+            }),
+            'batsman-hit': new RateLimiterRedis({
+                storeClient: redis,
+                points:1,
+                duration: 2
             })
         }
     }
@@ -73,6 +78,12 @@ export class RateLimiter {
     public async handleForceUpdateMove(){
         const limitter = this.rateLimiters['force-update'];
         const key = `force-update`
+        return await this.isAllowed(limitter, key);
+    }
+
+    public async hasBatsManHitLimit(){
+        const limitter = this.rateLimiters['batsman-hit'];
+        const key = `batsman-hit`
         return await this.isAllowed(limitter, key);
     }
 }
