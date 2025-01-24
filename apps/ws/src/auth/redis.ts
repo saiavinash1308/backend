@@ -13,6 +13,7 @@ export class RateLimiter {
                 points: 1,
                 duration: 1
             }),
+            //
             'make-move': new RateLimiterRedis({
                 storeClient: redis,
                 points: 1,
