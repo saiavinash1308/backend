@@ -1,5 +1,6 @@
 import { GameType } from "../../types/GameTypes";
 import { appManager } from "../main/AppManager";
+import { CricketGame } from "./CricketGame";
 import { FastLudoGame } from "./FastLudoGame";
 import { LudoGame } from "./LudoGame";
 
@@ -96,6 +97,52 @@ export class GameManager{
         const fastludogame = game as FastLudoGame;
         fastludogame.timeUp();
     }
+
+    fetchCricketGameAndBatsmanHit(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "CRICKET")  return;
+        const cricketgame = game as CricketGame
+        cricketgame.batsManHit(playerId);
+    }
+
+    fetchCricketGameAndUpdateScore(roomId: string, playerId: string, score: number){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "CRICKET")  return;
+        const cricketgame = game as CricketGame
+        cricketgame.updateScore(playerId, score);
+    }
+
+    fetchCricketGameAndHitWicket(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "CRICKET")  return;
+        const cricketgame = game as CricketGame
+        cricketgame.hitWicket(playerId);
+    }
+
+    fetchCricketGameAndResetBowler(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "CRICKET")  return;
+        const cricketgame = game as CricketGame
+        cricketgame.resetBowler(playerId);
+    }
+
+    fetchCricketGameAndResetBatsMan(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "CRICKET")  return;
+        const cricketgame = game as CricketGame
+        cricketgame.resetBatsMan(playerId);
+    }
+
 }
 
 export const gameManager = GameManager.getInstance()

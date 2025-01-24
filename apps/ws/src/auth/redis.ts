@@ -16,12 +16,12 @@ export class RateLimiter {
             'make-move': new RateLimiterRedis({
                 storeClient: redis,
                 points: 1,
-                duration: 1
+                duration: 2
             }),
             'move-updated': new RateLimiterRedis({
                 storeClient: redis,
                 points: 1,
-                duration: 1,
+                duration: 2,
             }),
             'force-update': new RateLimiterRedis({
                 storeClient: redis,
