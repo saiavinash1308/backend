@@ -147,7 +147,7 @@ class UserManager {
             console.log("Moving Batsman: " + data);
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
-            socketManager.emitToOthers(roomId, "MOVE_BATSMAN", data, user.getSocket().id);
+            socketManager.broadcastToRoom(roomId, "MOVE_BATSMAN", data);
         })
 
         user.getSocket().on("CRICKET_IDLE", (data) => {
