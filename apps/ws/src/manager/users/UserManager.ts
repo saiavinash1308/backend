@@ -144,10 +144,23 @@ class UserManager {
 
         user.getSocket().on("MOVE_BATSMAN", (data) => {
             if(!data) return
-            console.log("Moving Batsman");
+            console.log("Moving Batsman: " + data);
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
             socketManager.broadcastToRoom(roomId, "MOVE_BATSMAN", data);
+        })
+
+        user.getSocket().on("CRICKET_IDLE", (data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            if(!roomId) return;
+            socketManager.emitToOthers(roomId, "CRICKET_IDLE", data, user.getSocket().id);
+        })
+
+        user.getSocket().on("BALL_HIT_POSITION", (data) => {
+            if(!data) return
+            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            if(!roomId) return;
+            socketManager.broadcastToRoom(roomId, "BALL_HIT_POSITION", data);
         })
 
         user.getSocket().on("GROUND_TARGET_MOVE", (data) => {
@@ -158,7 +171,6 @@ class UserManager {
         })
 
         user.getSocket().on("BATSMAN_HIT", (data) => {
-            if(!data) return
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
             gameManager.fetchCricketGameAndBatsmanHit(roomId, user.getSocket().id);

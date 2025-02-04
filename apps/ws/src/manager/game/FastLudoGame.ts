@@ -46,7 +46,7 @@ export class FastLudoGame{
     private room: Room;
     private currentPlayer: string;
     private turnTimer: NodeJS.Timeout | null = null; // Timer ID for the turn
-    private turnTimeLimit = 10000;
+    private turnTimeLimit = 15000;
 
     constructor(roomId: string){
         this.roomId = roomId

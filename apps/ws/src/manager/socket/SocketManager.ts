@@ -25,6 +25,17 @@ export class SocketManager {
         
     }
 
+    public emitToOthers(roomId: string, event: string, message: string, playerId: string){
+        const sockets = appManager.getPlayerSockets(roomId);
+        if(sockets){
+            sockets.forEach(socket => {
+                if(socket.id !== playerId){
+                    socket.emit(event, message)
+                }
+            });
+        } 
+    }
+
 
 }
 

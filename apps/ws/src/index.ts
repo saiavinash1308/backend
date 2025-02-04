@@ -16,7 +16,7 @@ export const io = new Server(server, {
         methods: ["GET", "POST"], // Allow only specific HTTP methods
     }
 })
-app.get("/",async(req,res)=>{
+app.get("/",async(_,res)=>{
     const onlineUserSize = userManager.getUserCount();
     if(onlineUserSize > 10000) return onlineUserSize
         const randomValue = Math.floor(Math.random() * (150000 - 100000 + 1)) + 100000;
