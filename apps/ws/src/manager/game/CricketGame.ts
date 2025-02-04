@@ -23,9 +23,10 @@ export class CricketGame {
         this.player1 = sockets[0].id;
         this.player2 = sockets[1].id;
         this.currentPlayer = this.player1;
-        const newUsers = new Array<{socketId: string}>();
-        newUsers.push({socketId: this.player1});
-        newUsers.push({socketId: this.player2});
+        const newUsers = new Array<{socketId: string, username: string}>();
+        const gamePlayers = this.room.getPlayers();
+        newUsers.push({socketId: gamePlayers[0].getSocket().id, username: gamePlayers[0].username});
+        newUsers.push({socketId: gamePlayers[1].getSocket().id, username: gamePlayers[1].username});
         const message = JSON.stringify({roomId, users: newUsers})
         socketManager.broadcastToRoom(roomId, "STOP_SEARCH", 'Stop Searching');
         socketManager.broadcastToRoom(roomId, "START_CRICKET_GAME", message);

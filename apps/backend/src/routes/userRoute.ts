@@ -78,9 +78,6 @@ router.post('/login', async(req, res) => {
     }
 })
 
-interface JwtPayload {
-    userId: string; // Add any other fields present in your token payload
-}
 
 router.post('/update', authenticateToken ,async(req: UserRequest, res) => {
     try {
@@ -106,7 +103,6 @@ router.post('/update', authenticateToken ,async(req: UserRequest, res) => {
             return res.status(400).json({message: 'User not found'})
         }
         const previousName = user.username
-        const previousMobile = user.mobile
         user = await prisma.user.update({
             where: {
                 userId

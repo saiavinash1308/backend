@@ -45,7 +45,7 @@ export class LudoGame{
     private room: Room;
     private currentPlayer: string;
     private turnTimer: NodeJS.Timeout | null = null; // Timer ID for the turn
-    private turnTimeLimit = 15000;
+    private turnTimeLimit = 10000;
 
     constructor(roomId: string){
         this.roomId = roomId
@@ -58,8 +58,8 @@ export class LudoGame{
         })
         this.currentPlayer = this.players[0]
         this.board = new LudoBoard(sockets, this.roomId)
-        const newUsers = new Array<{socketId: string}>();
-        this.players.forEach((player) => newUsers.push({socketId: player}))
+        const newUsers = new Array<{socketId: string, username: string}>();
+        this.room.getPlayers().forEach((player) => newUsers.push({socketId: player.getSocket().id, username: player.username}))
         const message = JSON.stringify({roomId, users: newUsers})
         socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_STOP_SEARCH", 'Stop Searching');
         socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_START_GAME", message);

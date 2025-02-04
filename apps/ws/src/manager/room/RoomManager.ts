@@ -49,8 +49,31 @@ export class RoomManager {
         if(data.success){
             const gameDetails = data.gameDetails;
             if(gameDetails){
+                const wallet = await prisma.wallet.findUnique({
+                    where: {
+                        userId: user.getUserId()
+                    }
+                })
+                if(!wallet){
+                    user.getSocket().emit("WALLET_NOT_FOUND")
+                    return;
+                }
+                if(wallet.currentBalance < gameDetails.entryFee){
+                    user.getSocket().emit("INSUFFICIENT_FUNDS");
+                    return;
+                }
+                await prisma.wallet.update({
+                    where: {
+                        walletId: wallet.walletId
+                    },
+                    data: {
+                        currentBalance: {
+                            decrement: gameDetails.entryFee
+                        }
+                    }
+                })
                 const roomId = createId()
-                const room = new Room(roomId, gameDetails.maxPlayers, user, gameDetails.gameType, gameDetails.entryFee);
+                const room = new Room(roomId, gameId, gameDetails.maxPlayers, user, gameDetails.gameType, gameDetails.entryFee);
                 appManager.getRooms().set(roomId, room);
                 appManager.getPendingRoomMappinngs().set(gameId, roomId)
                 appManager.getUserToRoomMapping().set(user.getSocket().id, roomId);
@@ -58,6 +81,7 @@ export class RoomManager {
                 user.getSocket().emit('ROOM_CREATED', message)
             }
             else{
+
                 const message = JSON.stringify({ message: 'Game not found' })
                 user.getSocket().emit('GAME_NOT_FOUND', message)
             }
@@ -65,9 +89,30 @@ export class RoomManager {
     }
 
 
-    private insertIntoPendingRoom(user: User, roomId: string): AddToPendingRoomResponse{
+    private async insertIntoPendingRoom(user: User, roomId: string): Promise<AddToPendingRoomResponse>{
         const pendingRoom = appManager.getRooms().get(roomId);
         if(pendingRoom && pendingRoom.isPendingRoom()){
+            const wallet = await prisma.wallet.findUnique({
+                where: {
+                    userId: user.getUserId()
+                }
+            })
+            if(!wallet){
+                return {success: false, message: "Wallet not found"};
+            }
+            if(wallet.currentBalance < pendingRoom.getEntryFee()){
+                return {success: false, message: "Insufficient Funds"};
+            }
+            await prisma.wallet.update({
+                where: {
+                    walletId: wallet.walletId
+                },
+                data: {
+                    currentBalance: {
+                        decrement: pendingRoom.getEntryFee()
+                    }
+                }
+            })
             pendingRoom.addPlayer(user);
             appManager.getUserToRoomMapping().set(user.getSocket().id, roomId);
             return {success: true, message: 'User added to room'} 
@@ -101,7 +146,7 @@ export class RoomManager {
         }
         const pendingRoomId = appManager.getPendingRoomMappinngs().get(gameId)
         if(pendingRoomId){
-            const data = this.insertIntoPendingRoom(user, pendingRoomId)
+            const data = await this.insertIntoPendingRoom(user, pendingRoomId)
             if(data.success){
                 const message = JSON.stringify({ message: 'User added to room', roomId: pendingRoomId })
                 socketManager.broadcastToRoom(pendingRoomId, 'USER_JOINED', message);
@@ -114,6 +159,10 @@ export class RoomManager {
                 }
                 
             }else{
+                if(data.message === "Insufficient Funds"){
+                    user.getSocket().emit("INSUFFICIENT_FUNDS");
+                    return;
+                }
                 const message = JSON.stringify({ message: data.message })
                 socket.emit('USER_JOIN_FAILED', message)
             }
