@@ -45,12 +45,6 @@ export class CricketGame {
         socketManager.broadcastToRoom(this.roomId, "MOVE_BATSMAN", data)
     }
 
-    public bowlerRun(playerId: string){
-        this.isScoreUpdated = false;
-        const message = JSON.stringify({playerId})
-        socketManager.broadcastToRoom(this.roomId, "BOWLER_RUN", message)
-    }
-
     public updateTracker(playerId: string, data: string){
         if(this.isBatsman(playerId)) return;
         socketManager.broadcastToRoom(this.roomId, "UPDATE_TRACKER", data);
@@ -116,6 +110,7 @@ export class CricketGame {
 
     public resetBowler(playerId: string){
         console.log("Calling bowler reset");
+        this.isScoreUpdated = true;
         socketManager.broadcastToRoom(this.roomId, "RESET_BOWLER", "");
     }
 
