@@ -81,9 +81,9 @@ export class RateLimiter {
         return await this.isAllowed(limitter, key);
     }
 
-    public async hasBatsManHitLimit(){
+    public async hasBatsManHitLimit(roomId: string){
         const limitter = this.rateLimiters['batsman-hit'];
-        const key = `batsman-hit`
+        const key = `batsman-hit-${roomId}`
         return await this.isAllowed(limitter, key);
     }
 }

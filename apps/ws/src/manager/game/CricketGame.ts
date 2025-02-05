@@ -13,7 +13,8 @@ export class CricketGame {
     private player2Score: number =  0;
     private player1Balls: number = 0;
     private player2Balls: number = 0;
-    private isGameEnd: boolean = false
+    private isGameEnd: boolean = false;
+    private isScoreUpdated: boolean = false;
     constructor(roomId: string){
         this.roomId = roomId
         const room = appManager.getRooms().get(roomId);
@@ -46,6 +47,7 @@ export class CricketGame {
 
     public bowlerBowl(playerId: string){
         if(this.isBatsman(playerId)) return;
+        this.isScoreUpdated = false;
         const message = JSON.stringify({playerId})
         socketManager.broadcastToRoom(this.roomId, "BOWLER_BOWL", message)
     }
@@ -61,7 +63,11 @@ export class CricketGame {
 
     public updateScore(playerId: string, score: number){
         if(!this.isBatsman(playerId)) return;
-        if(!rateLimiter.hasBatsManHitLimit()) return;
+        if(this.isScoreUpdated) return
+        if(!rateLimiter.hasBatsManHitLimit(this.roomId)) {
+            console.log(true);
+            return
+        };
         console.log("Score: " + score)
         if(playerId === this.player1){
             this.player1Score += score; 
@@ -80,6 +86,7 @@ export class CricketGame {
                 this.endGame();
             }
         }
+        this.isScoreUpdated = true;
         socketManager.broadcastToRoom(this.roomId, "UPDATE_SCORE", score.toString())
     }
 
@@ -95,6 +102,7 @@ export class CricketGame {
     }
 
     private endGame(){
+        this.isGameEnd = true;
         if(this.player1Score > this.player2Score){
             socketManager.broadcastToRoom(this.roomId, "WINNER", this.player1)
         }
