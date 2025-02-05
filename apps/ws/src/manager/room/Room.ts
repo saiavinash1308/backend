@@ -14,8 +14,9 @@ export class Room {
     private readonly maxPlayers: number;
     private readonly gameType: DBGameType;
     private readonly entryFee: number;
+    private readonly _prizePool: number;
     
-    constructor(roomId: string, gameId: string, maxPlayers: number, player: User, gameType: DBGameType, entryFee: number) {
+    constructor(roomId: string, gameId: string, maxPlayers: number, player: User, gameType: DBGameType, entryFee: number, prizePool: number ) {
       this.roomId = roomId;
       this.players = [];
       this.addPlayer(player);
@@ -24,6 +25,7 @@ export class Room {
       this.gameType = gameType
       this.entryFee = entryFee
       this.gameId = gameId;
+      this._prizePool = prizePool;
       setTimeout(() => {
         if(this.players.length < maxPlayers){
           this.players.forEach(player => {
@@ -55,6 +57,10 @@ export class Room {
       }
       
       return true;
+    }
+
+    get prizePool(){
+      return this._prizePool
     }
 
     getRoomId() {

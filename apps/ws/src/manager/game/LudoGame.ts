@@ -60,7 +60,7 @@ export class LudoGame{
         this.board = new LudoBoard(sockets, this.roomId)
         const newUsers = new Array<{socketId: string, username: string}>();
         this.room.getPlayers().forEach((player) => newUsers.push({socketId: player.getSocket().id, username: player.username}))
-        const message = JSON.stringify({roomId, users: newUsers})
+        const message = JSON.stringify({roomId, users: newUsers, prizePool: this.room.prizePool})
         socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_STOP_SEARCH", 'Stop Searching');
         socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_START_GAME", message);
         setTimeout(() => {

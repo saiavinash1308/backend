@@ -73,7 +73,7 @@ export class RoomManager {
                     }
                 })
                 const roomId = createId()
-                const room = new Room(roomId, gameId, gameDetails.maxPlayers, user, gameDetails.gameType, gameDetails.entryFee);
+                const room = new Room(roomId, gameId, gameDetails.maxPlayers, user, gameDetails.gameType, gameDetails.entryFee, gameDetails.prizePool);
                 appManager.getRooms().set(roomId, room);
                 appManager.getPendingRoomMappinngs().set(gameId, roomId)
                 appManager.getUserToRoomMapping().set(user.getSocket().id, roomId);
