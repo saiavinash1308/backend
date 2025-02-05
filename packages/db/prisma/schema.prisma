@@ -45,7 +45,7 @@ model Admin {
 model Banner {
   bannerId  String   @id @default(cuid())
   title     String
-  imageUrl  String
+  imageUrl  String  @db.Text
   createdAt DateTime @default(now())
   isActive  Boolean  @default(true)
 }
