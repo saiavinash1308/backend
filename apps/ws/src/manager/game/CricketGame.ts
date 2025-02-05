@@ -69,7 +69,11 @@ export class CricketGame {
             if(this.player1Balls === 6){
                 this.isScoreUpdated = false
                 this.switchCamera();
+                socketManager.broadcastToRoom(this.roomId, "UPDATE_SCORE", score.toString())
+                return;
             }
+            this.isScoreUpdated = true;
+            socketManager.broadcastToRoom(this.roomId, "UPDATE_SCORE", score.toString())
         }
         else{
             this.player2Score += score;
@@ -80,9 +84,11 @@ export class CricketGame {
                 this.isGameEnd = true;
                 this.endGame();
             }
+            this.isScoreUpdated = true;
+            socketManager.broadcastToRoom(this.roomId, "UPDATE_SCORE", score.toString())
         }
-        this.isScoreUpdated = true;
-        socketManager.broadcastToRoom(this.roomId, "UPDATE_SCORE", score.toString())
+        
+        
     }
 
     public hitWicket(playerId: string){
