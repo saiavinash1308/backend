@@ -139,7 +139,7 @@ class UserManager {
             if(!data) return
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
-            socketManager.broadcastToRoom(roomId, "BOWLER_RUN", data);
+            gameManager.fetchCricketGameAndRunBowler(roomId, user.getSocket().id);
         });
 
         user.getSocket().on("MOVE_BATSMAN", (data) => {

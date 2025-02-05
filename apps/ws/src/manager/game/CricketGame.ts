@@ -45,11 +45,10 @@ export class CricketGame {
         socketManager.broadcastToRoom(this.roomId, "MOVE_BATSMAN", data)
     }
 
-    public bowlerBowl(playerId: string){
-        if(this.isBatsman(playerId)) return;
+    public bowlerRun(playerId: string){
         this.isScoreUpdated = false;
         const message = JSON.stringify({playerId})
-        socketManager.broadcastToRoom(this.roomId, "BOWLER_BOWL", message)
+        socketManager.broadcastToRoom(this.roomId, "BOWLER_RUN", message)
     }
 
     public updateTracker(playerId: string, data: string){

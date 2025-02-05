@@ -143,6 +143,15 @@ export class GameManager{
         cricketgame.resetBatsMan(playerId);
     }
 
+    fetchCricketGameAndRunBowler(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "CRICKET")  return;
+        const cricketgame = game as CricketGame
+        cricketgame.bowlerRun(playerId);
+    }
+
 }
 
 export const gameManager = GameManager.getInstance()
