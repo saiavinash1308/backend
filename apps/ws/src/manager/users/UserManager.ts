@@ -180,6 +180,7 @@ class UserManager {
 
         user.getSocket().on("UPDATE_SCORE", (data) => {
             try {
+                if(!rateLimiter.hasBatsManHitLimit()) return;
                 if(!data) return
                 const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
                 if(!roomId) return;
