@@ -55,7 +55,6 @@ export class CricketGame {
     }
 
     public updateScore(playerId: string, score: number){
-        if(!this.isBatsman(playerId)) return;
         if(this.isScoreUpdated) return
         if(!rateLimiter.hasBatsManHitLimit(this.roomId)) {
             console.log(true);
@@ -67,6 +66,7 @@ export class CricketGame {
             this.player1Balls += 1;
             console.log("Player1 balls" + this.player1Balls);
             if(this.player1Balls === 6){
+                this.isScoreUpdated = false;
                 this.switchCamera();
             }
         }
