@@ -11,7 +11,7 @@ router.post('/upload', async(req, res) => {
    try {
     const bannerValidate = validateBanner.safeParse(req.body)
     if(!bannerValidate.success){
-      return res.status(400).json({message: 'Invalid request'})
+      return res.status(400).json({message: bannerValidate.error.errors[0]});
     }
     const {url, title} = req.body
     const banner = await prisma.banner.create({
