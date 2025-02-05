@@ -65,6 +65,7 @@ export class CricketGame {
         if(playerId === this.player1){
             this.player1Score += score; 
             this.player1Balls += 1;
+            console.log("Player1 balls" + this.player1Balls);
             if(this.player1Balls === 6){
                 this.switchCamera();
             }
@@ -110,7 +111,7 @@ export class CricketGame {
 
     public resetBowler(playerId: string){
         console.log("Calling bowler reset");
-        this.isScoreUpdated = true;
+        this.isScoreUpdated = false;
         socketManager.broadcastToRoom(this.roomId, "RESET_BOWLER", "");
     }
 
