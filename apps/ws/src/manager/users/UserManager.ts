@@ -174,12 +174,12 @@ class UserManager {
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
             gameManager.fetchCricketGameAndBatsmanHit(roomId, user.getSocket().id);
+            // socketManager.broadcastToRoom(roomId, "GROUND_TARGET_MOVE", data);
         })
 
 
         user.getSocket().on("UPDATE_SCORE", (data) => {
             try {
-                if(!rateLimiter.hasBatsManHitLimit()) return;
                 if(!data) return
                 const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
                 if(!roomId) return;
@@ -209,7 +209,6 @@ class UserManager {
             if(!roomId) return;
             gameManager.fetchCricketGameAndResetBatsMan(roomId, user.getSocket().id);
         })
-
         
 
     }
