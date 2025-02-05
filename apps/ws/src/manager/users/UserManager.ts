@@ -174,7 +174,6 @@ class UserManager {
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
             gameManager.fetchCricketGameAndBatsmanHit(roomId, user.getSocket().id);
-            // socketManager.broadcastToRoom(roomId, "GROUND_TARGET_MOVE", data);
         })
 
 
