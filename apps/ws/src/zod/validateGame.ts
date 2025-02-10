@@ -26,3 +26,7 @@ export const validateLudoMove = z.object({
     roomId: z.string(),
     piece: z.enum(["0", "1", "2", "3"])
 })
+
+export const validateMemoryPick = z.object({
+    index: z.number()
+})

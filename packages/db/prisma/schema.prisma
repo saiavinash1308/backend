@@ -141,6 +141,7 @@ enum GameType {
   FAST_LUDO
   CRICKET
   RUMMY
+  MEMORYGAME
 }
 
 enum TicketStatus {

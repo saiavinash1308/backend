@@ -111,7 +111,7 @@ router.put('/disableGame/:gameId', verifyAdmin, async(req, res) => {
     }
 })
 
-type gameJwtClaims = "LUDO" | "CRICKET" | "FAST_LUDO" | "RUMMY"
+type gameJwtClaims = "LUDO" | "CRICKET" | "FAST_LUDO" | "RUMMY" | "MEMORYGAME"
 
 router.get('/fetchGame/:gameType', async(req, res) => {
     try {

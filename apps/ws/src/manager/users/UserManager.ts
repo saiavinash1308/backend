@@ -1,5 +1,5 @@
 import rateLimiter from "../../auth/redis";
-import { validateExit, validateInitGame, validateLudoMove, validateRoomId } from "../../zod/validateGame";
+import { validateExit, validateInitGame, validateLudoMove, validateMemoryPick, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
 import { appManager } from "../main/AppManager";
 import { roomManager } from "../room/RoomManager";
@@ -23,7 +23,8 @@ class UserManager {
     addUser(user: User) {
         this.addLudoHandler(user)
         this.addFastLudoHandler(user);
-        this.addCricketHandler(user)
+        this.addCricketHandler(user);
+        this.addMemoryListener(user);
         this.onlineUsers.set(user.getSocket().id, user);
     }
 
@@ -52,7 +53,7 @@ class UserManager {
         user.getSocket().on('INIT_GAME', async(data: string) => {
             if(!data){
                 const response = JSON.stringify({ message: 'Invalid data' })
-                user.getSocket().emit('ROLL_ERROR', response)
+                user.getSocket().emit('INIT_ERROR', response)
                 return
             }
             const gameId = data;
@@ -209,8 +210,17 @@ class UserManager {
             if(!roomId) return;
             gameManager.fetchCricketGameAndResetBatsMan(roomId, user.getSocket().id);
         })
-        
+    }
 
+    private addMemoryListener(user: User){
+        user.getSocket().on("PICK_CARD", (data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            if(!roomId) return;
+            const isValidPick = validateMemoryPick.safeParse(data);
+            if(!isValidPick.success) return;
+            const {index} = isValidPick.data;
+            gameManager.fetchMemoryGameAndPickCard(roomId, user.getSocket().id, index);
+        })
     }
 }
 

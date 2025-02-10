@@ -13,6 +13,7 @@ import { CricketGame } from "../game/CricketGame";
 import { RummyGame } from "../game/RummyGame";
 import { GameType } from "../../types/GameTypes";
 import { DBGameType } from "../../types/RoomTypes";
+import { MemoryGame } from "../game/MemoryGame";
 
 
 export class RoomManager {
@@ -133,6 +134,8 @@ export class RoomManager {
                 return new CricketGame(roomId)
             case "RUMMY":
                 return new RummyGame(roomId)
+            case "MEMORYGAME":
+                return new MemoryGame(roomId)
         }
     }
 

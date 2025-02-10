@@ -3,6 +3,7 @@ import { appManager } from "../main/AppManager";
 import { CricketGame } from "./CricketGame";
 import { FastLudoGame } from "./FastLudoGame";
 import { LudoGame } from "./LudoGame";
+import { MemoryGame } from "./MemoryGame";
 
 export class GameManager{
     private static instance: GameManager;
@@ -143,6 +144,14 @@ export class GameManager{
         cricketgame.resetBatsMan(playerId);
     }
 
+    fetchMemoryGameAndPickCard(roomId: string, playerId: string, index: number){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "MEMORYGAME")  return;
+        const memorygame = game as MemoryGame
+        memorygame.pickCard(playerId, index);
+    }
 
 }
 
