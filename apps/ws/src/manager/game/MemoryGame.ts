@@ -28,9 +28,7 @@ export class MemoryGame{
             this.room.getPlayers().forEach((player) => newUsers.push({socketId: player.getSocket().id, username: player.username}))
             const message = JSON.stringify({roomId, users: newUsers})
             socketManager.broadcastToRoom(roomId, "STOP_SEARCH", 'Stop Searching');
-            setTimeout(() => {
-                socketManager.broadcastToRoom(roomId, "START_MEMORY_GAME", message);
-            }, 2000);
+            socketManager.broadcastToRoom(roomId, "START_MEMORY_GAME", message);
             setTimeout(() => {
                 socketManager.broadcastToRoom(roomId, "MEMORY_GAME_CURRENT_TURN", this.currentPlayer)
             }, 1000);
