@@ -36,12 +36,12 @@ export class MemoryGame{
 
         private shuffleCards(){
             const iconConfigs = [
-                "Heart",
-                "Star",
-                "Sun",
-                "Moon",
-                "Cloud",
-                "Flower"
+                "Candy_1",
+                "Candy_2",
+                "Candy_3",
+                "Candy_4",
+                "Candy_5",
+                "Candy_6"
             ]
             const duplicatedArray = [...iconConfigs, ...iconConfigs];
             const shuffledArray = duplicatedArray.sort(() => Math.random() - 0.5);
