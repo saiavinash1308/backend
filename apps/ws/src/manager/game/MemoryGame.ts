@@ -66,6 +66,7 @@ export class MemoryGame{
             if(index < 0 || index > 21) return;
             const currentCard = this.gameCards[index];
             //TODO: emit to open the card
+            console.log("Running game picker...");
             socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", currentCard);
             if(!this.card1) {
                 this.card1 = currentCard

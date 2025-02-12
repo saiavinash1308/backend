@@ -214,12 +214,18 @@ class UserManager {
 
     private addMemoryListener(user: User){
         user.getSocket().on("PICK_CARD", (data) => {
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
-            if(!roomId) return;
-            const isValidPick = validateMemoryPick.safeParse(data);
-            if(!isValidPick.success) return;
-            const {index} = isValidPick.data;
-            gameManager.fetchMemoryGameAndPickCard(roomId, user.getSocket().id, index);
+            try {
+                console.log("Picking card");
+                const isValidPick = validateMemoryPick.safeParse(data);
+                if(!isValidPick.success) return;
+                const index = parseInt(isValidPick.data)
+                const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+                if(!roomId) return;
+                console.log("Game manager picking...")
+                gameManager.fetchMemoryGameAndPickCard(roomId, user.getSocket().id, index);
+            } catch (error) {
+                console.log(error)
+            }
         })
     }
 }
