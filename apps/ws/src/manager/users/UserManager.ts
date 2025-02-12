@@ -218,6 +218,7 @@ class UserManager {
                 console.log("Picking card");
                 const isValidPick = validateMemoryPick.safeParse(data);
                 if(!isValidPick.success) return;
+                console.log("This is index value: " ,isValidPick.data)
                 const index = parseInt(isValidPick.data)
                 const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
                 if(!roomId) return;
