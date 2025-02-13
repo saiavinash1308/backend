@@ -80,6 +80,7 @@ export class MemoryGame{
                     //TODO: update score with same current turn and remove cards
                     setTimeout(() => {
                         if(this.player1Score + this.player1Score < 11){
+                            const message = JSON.stringify({playerId: this.currentPlayer, index1: this.card1Index, index2: index})
                             socketManager.broadcastToRoom(this.roomId, "CARDS_MATCHED", this.currentPlayer);
                         }
                         else{
@@ -92,7 +93,8 @@ export class MemoryGame{
                 //close cards and update the turn;
                 setTimeout(() => {
                     const currentTurn = this.handleTurn();
-                    socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", "")
+                    const message = JSON.stringify({index1: this.card1Index, index2: index})
+                    socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
                     setTimeout(() => {
                         socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", currentTurn)
                     }, 1000);
