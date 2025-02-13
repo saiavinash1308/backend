@@ -81,7 +81,7 @@ export class MemoryGame{
                     setTimeout(() => {
                         if(this.player1Score + this.player1Score < 11){
                             const message = JSON.stringify({playerId: this.currentPlayer, index1: this.card1Index, index2: index})
-                            socketManager.broadcastToRoom(this.roomId, "CARDS_MATCHED", this.currentPlayer);
+                            socketManager.broadcastToRoom(this.roomId, "CARDS_MATCHED", message);
                         }
                         else{
                             const winnerId = this.player1Score > this.player2Score ? this.player1 : this.player2;
