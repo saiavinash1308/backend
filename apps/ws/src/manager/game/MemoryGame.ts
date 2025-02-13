@@ -91,7 +91,10 @@ export class MemoryGame{
                 //close cards and update the turn;
                 setTimeout(() => {
                     const currentTurn = this.handleTurn();
-                    socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", currentTurn)
+                    socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", "")
+                    setTimeout(() => {
+                        socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", currentTurn)
+                    }, 1000);
                 }, 1000);
             }
         }
