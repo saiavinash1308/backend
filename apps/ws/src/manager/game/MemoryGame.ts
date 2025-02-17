@@ -107,7 +107,7 @@ export class MemoryGame{
                     const currentTurn = this.handleTurn();
                     const message = JSON.stringify({index1: this.card1Index, index2: index})
                     setTimeout(() => {
-                        if(!rateLimiter.hasCardLimit(this.roomId)) return;
+                        console.log("Close cards")
                         socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
                     }, 1000);
                     this.card1Index = -1
