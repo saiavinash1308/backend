@@ -73,7 +73,9 @@ export class MemoryGame{
             console.log(this.gameCards.length);
             const currentCard = this.gameCards[index];
             const message = JSON.stringify({card: currentCard, index})
-            socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
+            setTimeout(() => {
+                socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
+            }, 1000);
             //TODO: emit to open the card
             if(!this.card1) {
                 this.card1 = currentCard
