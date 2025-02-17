@@ -221,6 +221,7 @@ class UserManager {
                 const index = parseInt(isValidPick.data);
                 const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
                 if(!roomId) return;
+                if(!rateLimiter.hasCardLimit(roomId)) return
                 console.log("Game manager picking...")
                 gameManager.fetchMemoryGameAndPickCard(roomId, user.getSocket().id, index);
             } catch (error) {
