@@ -104,6 +104,7 @@ export class MemoryGame{
                 //close cards and update the turn;
                 setTimeout(() => {
                     const currentTurn = this.handleTurn();
+                    console.log("This is  card1 index",  this.card1Index)
                     const message = JSON.stringify({index1: this.card1Index, index2: index})
                     socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
                     this.card1Index = -1
