@@ -70,7 +70,6 @@ export class MemoryGame{
         public pickCard(playerId: string, index: number){
             if(!this.isValidTurn(playerId)) return;
             if(index < 0 || index > 21) return;
-            console.log(this.gameCards.length);
             const currentCard = this.gameCards[index];
             //TODO: emit to open the card
             setTimeout(() => {
@@ -89,28 +88,32 @@ export class MemoryGame{
                     //TODO: update score with same current turn and remove cards
                     setTimeout(() => {
                         if(this.player1Score + this.player1Score < 11){
-                            const message = JSON.stringify({playerId: this.currentPlayer, index1: this.card1Index, index2: index})
+                            const message = JSON.stringify({playerId: this.currentPlayer, index1: this.card1Index, index2: index, score1: this.player1Score, score2: this.player2Score})
                             socketManager.broadcastToRoom(this.roomId, "CARDS_MATCHED", message);
                             this.card1Index = -1
                             this.card1 = null
                         }
                         else{
                             const winnerId = this.player1Score > this.player2Score ? this.player1 : this.player2;
-                            socketManager.broadcastToRoom(this.roomId, "END_GAME", winnerId);
+                            const message = JSON.stringify({winnerId, score1: this.player1Score, score2: this.player2Score})
+                            socketManager.broadcastToRoom(this.roomId, "END_GAME", message);
                         }
-                    }, 1000);
+                    }, 1500);
             }
             else{
                 //close cards and update the turn;
                 setTimeout(() => {
                     const currentTurn = this.handleTurn();
                     const message = JSON.stringify({index1: this.card1Index, index2: index})
-                    socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
+                    setTimeout(() => {
+                        socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
+                    }, 1000);
                     this.card1Index = -1
                     this.card1 = null
                     setTimeout(() => {
+
                         socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", currentTurn)
-                    }, 1000);
+                    }, 1500);
                 }, 1000);
             }
         }
