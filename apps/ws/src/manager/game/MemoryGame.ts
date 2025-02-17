@@ -41,7 +41,13 @@ export class MemoryGame{
                 "Candy_3",
                 "Candy_4",
                 "Candy_5",
-                "Candy_6"
+                "Candy_6",
+                "Candy_7",
+                "Candy_8",
+                "Candy_9",
+                "Candy_10",
+                "Candy_11",
+
             ]
             const duplicatedArray = [...iconConfigs, ...iconConfigs];
             const shuffledArray = duplicatedArray.sort(() => Math.random() - 0.5);
@@ -64,11 +70,11 @@ export class MemoryGame{
         public pickCard(playerId: string, index: number){
             if(!this.isValidTurn(playerId)) return;
             if(index < 0 || index > 21) return;
+            console.log(this.gameCards.length);
             const currentCard = this.gameCards[index];
-            //TODO: emit to open the card
-            console.log("Running game picker...");
             const message = JSON.stringify({card: currentCard, index})
             socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
+            //TODO: emit to open the card
             if(!this.card1) {
                 this.card1 = currentCard
                 this.card1Index = index
@@ -80,12 +86,15 @@ export class MemoryGame{
                     //TODO: update score with same current turn and remove cards
                     setTimeout(() => {
                         if(this.player1Score + this.player1Score < 11){
-                            const message = JSON.stringify({playerId: this.currentPlayer, index1: this.card1Index, index2: index})
+                            const message = JSON.stringify({index1: this.card1Index, index2: index, scores: [this.player1Score, this.player2Score]});
                             socketManager.broadcastToRoom(this.roomId, "CARDS_MATCHED", message);
+                            this.card1Index = -1
+                            this.card1 = null
                         }
                         else{
                             const winnerId = this.player1Score > this.player2Score ? this.player1 : this.player2;
-                            socketManager.broadcastToRoom(this.roomId, "END_GAME", winnerId);
+                            const message = JSON.stringify({winnerId, scores: [this.player1Score, this.player2Score]});
+                            socketManager.broadcastToRoom(this.roomId, "END_GAME", message);
                         }
                     }, 1000);
             }
@@ -95,6 +104,8 @@ export class MemoryGame{
                     const currentTurn = this.handleTurn();
                     const message = JSON.stringify({index1: this.card1Index, index2: index})
                     socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
+                    this.card1Index = -1
+                    this.card1 = null
                     setTimeout(() => {
                         socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", currentTurn)
                     }, 1000);

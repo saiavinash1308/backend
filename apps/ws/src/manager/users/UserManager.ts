@@ -215,11 +215,10 @@ class UserManager {
     private addMemoryListener(user: User){
         user.getSocket().on("PICK_CARD", (data) => {
             try {
-                console.log("Picking card");
+                console.log(data);
                 const isValidPick = validateMemoryPick.safeParse(data);
                 if(!isValidPick.success) return;
-                console.log("This is index value: " ,isValidPick.data)
-                const index = parseInt(isValidPick.data)
+                const index = parseInt(isValidPick.data);
                 const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
                 if(!roomId) return;
                 console.log("Game manager picking...")

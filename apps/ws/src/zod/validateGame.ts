@@ -27,4 +27,4 @@ export const validateLudoMove = z.object({
     piece: z.enum(["0", "1", "2", "3"])
 })
 
-export const validateMemoryPick = z.string().min(1).max(2)
+export const validateMemoryPick = z.string()
