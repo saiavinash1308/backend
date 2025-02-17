@@ -82,7 +82,7 @@ export class MemoryGame{
             }
             if(this.card1Index === index) return;
             if((this.card1 === currentCard)){
-                    this.currentPlayer === this.player1 ? this.player1Score++  : this.player2Score++
+                    (this.currentPlayer === this.player1) ? this.player1Score++  : this.player2Score++
                     //TODO: update score with same current turn and remove cards
                     setTimeout(() => {
                         if(this.player1Score + this.player1Score < 11){
