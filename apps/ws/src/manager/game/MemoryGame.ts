@@ -72,11 +72,12 @@ export class MemoryGame{
             if(index < 0 || index > 21) return;
             console.log(this.gameCards.length);
             const currentCard = this.gameCards[index];
-            const message = JSON.stringify({card: currentCard, index})
-            setTimeout(() => {
-                socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
-            }, 1000);
             //TODO: emit to open the card
+            setTimeout(() => {
+            console.log("Running game picker...");
+            const message = JSON.stringify({card: currentCard, index})
+            socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
+        }, 1000);
             if(!this.card1) {
                 this.card1 = currentCard
                 this.card1Index = index
@@ -84,20 +85,18 @@ export class MemoryGame{
             }
             if(this.card1Index === index) return;
             if((this.card1 === currentCard)){
-                    (this.currentPlayer === this.player1) ? this.player1Score++  : this.player2Score++
+                    this.currentPlayer === this.player1 ? this.player1Score++  : this.player2Score++
                     //TODO: update score with same current turn and remove cards
                     setTimeout(() => {
                         if(this.player1Score + this.player1Score < 11){
-                            console.log("This is index 1:" + this.card1Index + " This is index2: " + index )
-                            const message = JSON.stringify({index1: this.card1Index, index2: index, scores: [this.player1Score, this.player2Score]});
+                            const message = JSON.stringify({playerId: this.currentPlayer, index1: this.card1Index, index2: index})
                             socketManager.broadcastToRoom(this.roomId, "CARDS_MATCHED", message);
                             this.card1Index = -1
                             this.card1 = null
                         }
                         else{
                             const winnerId = this.player1Score > this.player2Score ? this.player1 : this.player2;
-                            const message = JSON.stringify({winnerId, scores: [this.player1Score, this.player2Score]});
-                            socketManager.broadcastToRoom(this.roomId, "END_GAME", message);
+                            socketManager.broadcastToRoom(this.roomId, "END_GAME", winnerId);
                         }
                     }, 1000);
             }
