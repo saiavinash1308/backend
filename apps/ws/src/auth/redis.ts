@@ -33,7 +33,12 @@ export class RateLimiter {
                 storeClient: redis,
                 points:1,
                 duration: 2
-            })
+            }),
+            'card-limit': new RateLimiterRedis({
+                storeClient: redis,
+                points:1,
+                duration: 2
+            }),
         }
     }
     public static getInstance(){
@@ -84,6 +89,12 @@ export class RateLimiter {
     public async hasBatsManHitLimit(roomId: string){
         const limitter = this.rateLimiters['batsman-hit'];
         const key = `batsman-hit-${roomId}`
+        return await this.isAllowed(limitter, key);
+    }
+
+    public async hasCardLimit(roomId: string){
+        const limitter = this.rateLimiters['card-limit'];
+        const key = `card-limit-${roomId}`
         return await this.isAllowed(limitter, key);
     }
 }

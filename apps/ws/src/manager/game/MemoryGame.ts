@@ -1,3 +1,4 @@
+import rateLimiter from "../../auth/redis";
 import { appManager } from "../main/AppManager";
 import { Room } from "../room/Room";
 import { socketManager } from "../socket/SocketManager";
@@ -106,12 +107,12 @@ export class MemoryGame{
                     const currentTurn = this.handleTurn();
                     const message = JSON.stringify({index1: this.card1Index, index2: index})
                     setTimeout(() => {
+                        if(!rateLimiter.hasCardLimit(this.roomId)) return;
                         socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
                     }, 1000);
                     this.card1Index = -1
                     this.card1 = null
                     setTimeout(() => {
-
                         socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", currentTurn)
                     }, 1500);
                 }, 1000);
