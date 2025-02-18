@@ -37,17 +37,23 @@ export class MemoryGame{
 
         private shuffleCards(){
             const iconConfigs = [
-                "Candy_1",
-                "Candy_2",
-                "Candy_3",
-                "Candy_4",
-                "Candy_5",
-                "Candy_6",
-                "Candy_7",
-                "Candy_8",
-                "Candy_9",
-                "Candy_10",
-                "Candy_11",
+                "Mind_0",
+                "Mind_1",
+                "Mind_2",
+                "Mind_3",
+                "Mind_4",
+                "Mind_5",
+                "Mind_6",
+                "Mind_7",
+                "Mind_8",
+                "Mind_9",
+                "Mind_10",
+                "Mind_11",
+                "Mind_12",
+                "Mind_13",
+                "Mind_14",
+                "Mind_15",
+                
 
             ]
             const duplicatedArray = [...iconConfigs, ...iconConfigs];
