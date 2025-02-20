@@ -37,7 +37,7 @@ export class RateLimiter {
             'card-limit': new RateLimiterRedis({
                 storeClient: redis,
                 points:1,
-                duration: 1
+                duration: 2
             }),
         }
     }
