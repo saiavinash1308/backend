@@ -97,7 +97,7 @@ export class MemoryGame{
                     this.currentPlayer === this.player1 ? this.player1Score++  : this.player2Score++
                     //TODO: update score with same current turn and remove cards
                     setTimeout(() => {
-                        if(this.player1Score + this.player1Score < 11){
+                        if(this.player1Score + this.player2Score < 11){
                             const message = JSON.stringify({playerId: this.currentPlayer, index1: this.card1Index, index2: index, score1: this.player1Score, score2: this.player2Score})
                             socketManager.broadcastToRoom(this.roomId, "CARDS_MATCHED", message);
                             this.card1Index = -1
