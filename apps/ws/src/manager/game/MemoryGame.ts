@@ -86,7 +86,6 @@ export class MemoryGame{
             console.log("Running game picker...");
             const message = JSON.stringify({card: currentCard, index})
             socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
-        }, 1000);
             if(!this.card1) {
                 this.card1 = currentCard
                 this.card1Index = index
@@ -123,6 +122,8 @@ export class MemoryGame{
                 }, 1000);
                 
             }
+        }, 500);
+            
         }
 
 
