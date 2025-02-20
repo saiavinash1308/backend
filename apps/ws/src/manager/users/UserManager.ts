@@ -228,6 +228,13 @@ class UserManager {
                 console.log(error)
             }
         })
+
+        user.getSocket().on("UPDATE_TURN", (data) => {
+            console.log("Updating turn")
+            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            if(!roomId) return;
+            gameManager.fetchMemoryGameAndUpdateTurn(roomId, user.getSocket().id);
+        })
     }
 }
 

@@ -154,6 +154,15 @@ export class GameManager{
         memorygame.pickCard(playerId, index);
     }
 
+    fetchMemoryGameAndUpdateTurn(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "MEMORYGAME")  return;
+        const memorygame = game as MemoryGame
+        memorygame.handleTurn();
+    }
+
 }
 
 export const gameManager = GameManager.getInstance()
