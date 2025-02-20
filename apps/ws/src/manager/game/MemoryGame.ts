@@ -63,10 +63,7 @@ export class MemoryGame{
 
         private handleTurn(){
             this.currentPlayer = this.currentPlayer === this.player1 ? this.player2 : this.player1;
-            setTimeout(() => {
-                socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", this.currentPlayer)
-            }, 500);
-            
+            return this.currentPlayer;
         }
 
         private isValidTurn(playerId: string){
@@ -111,17 +108,20 @@ export class MemoryGame{
                     }, 1500);
             }
             else{
+                //close cards and update the turn;
                 setTimeout(() => {
+                    const currentTurn = this.handleTurn();
                     const message = JSON.stringify({index1: this.card1Index, index2: index})
                     setTimeout(() => {
                         console.log("Close cards")
                         socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
-                        this.card1Index = -1
-                        this.card1 = null
-                        this.handleTurn();
                     }, 1000);
+                    this.card1Index = -1
+                    this.card1 = null
+                    setTimeout(() => {
+                        socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", currentTurn)
+                    }, 1500);
                 }, 1000);
-                
             }
         }
 
