@@ -108,16 +108,18 @@ export class MemoryGame{
                     }, 1500);
             }
             else{
-                const currentTurn = this.handleTurn();
-                const message = JSON.stringify({index1: this.card1Index, index2: index})
                 setTimeout(() => {
-                    console.log("Close cards")
-                    socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
-                    this.card1Index = -1
-                    this.card1 = null
+                    const currentTurn = this.handleTurn();
+                    const message = JSON.stringify({index1: this.card1Index, index2: index})
                     setTimeout(() => {
-                        socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", currentTurn)
-                    }, 500);
+                        console.log("Close cards")
+                        socketManager.broadcastToRoom(this.roomId, "CLOSE_CARDS", message)
+                        this.card1Index = -1
+                        this.card1 = null
+                        setTimeout(() => {
+                            socketManager.broadcastToRoom(this.roomId, "MEMORY_GAME_CURRENT_TURN", currentTurn)
+                        }, 500);
+                    }, 1000);
                 }, 1000);
                 
             }
