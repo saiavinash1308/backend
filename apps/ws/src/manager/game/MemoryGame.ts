@@ -95,14 +95,14 @@ export class MemoryGame{
             //TODO: emit to open the card
             setTimeout(() => {
             console.log("Running game picker...");
+            const message = JSON.stringify({card: currentCard, index})
+            socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
             if(!this.card1) {
                 this.card1 = currentCard
                 this.card1Index = index
                 return
             }
             if(this.card1Index === index) return;
-            const message = JSON.stringify({card: currentCard, index})
-            socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
             this.isCardOpened = false
             if((this.card1 === currentCard)){
                     this.currentPlayer === this.player1 ? this.player1Score++  : this.player2Score++
