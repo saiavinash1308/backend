@@ -15,6 +15,7 @@ export class MemoryGame{
         private player2Score: number =  0;
         private gameCards: string[];
         private isGameEnd: boolean = false;
+        private isCardOpened: boolean = false;
         constructor(roomId: string){
             this.roomId = roomId
             const room = appManager.getRooms().get(roomId);
@@ -87,19 +88,22 @@ export class MemoryGame{
         public pickCard(playerId: string, index: number){
             console.log("Expected pick from " + this.currentPlayer + " expected " + playerId )
             if(!this.isValidTurn(playerId)) return;
+            if(this.isCardOpened) return;
+            this.isCardOpened = true;
             if(index < 0 || index > 21) return;
             const currentCard = this.gameCards[index];
             //TODO: emit to open the card
             setTimeout(() => {
             console.log("Running game picker...");
-            const message = JSON.stringify({card: currentCard, index})
-            socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
             if(!this.card1) {
                 this.card1 = currentCard
                 this.card1Index = index
                 return
             }
             if(this.card1Index === index) return;
+            const message = JSON.stringify({card: currentCard, index})
+            socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
+            this.isCardOpened = false
             if((this.card1 === currentCard)){
                     this.currentPlayer === this.player1 ? this.player1Score++  : this.player2Score++
                     //TODO: update score with same current turn and remove cards
