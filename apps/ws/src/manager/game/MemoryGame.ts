@@ -88,9 +88,15 @@ export class MemoryGame{
         public pickCard(playerId: string, index: number){
             console.log("Expected pick from " + this.currentPlayer + " expected " + playerId )
             if(!this.isValidTurn(playerId)) return;
-            if(this.isCardOpened) return;
+            if(this.isCardOpened) {
+                console.log("Card open status: " + this.isCardOpened);
+                return;
+            };
             this.isCardOpened = true;
-            if(index < 0 || index > 21) return;
+            if(index < 0 || index > 21) {
+                console.log("Index out of range");
+                return;
+            };
             const currentCard = this.gameCards[index];
             //TODO: emit to open the card
             setTimeout(() => {
