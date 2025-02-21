@@ -61,7 +61,9 @@ export class MemoryGame{
             return shuffledArray;
         }
 
-        public handleTurn(){
+        public handleTurn(playerId: string){
+            console.log("Expected Turn change from " + this.currentPlayer + " recieved " + playerId);
+            if(!this.isValidTurn(playerId)) return;
             if(this.currentPlayer === this.player1){
                 this.currentPlayer = this.player2
             }
@@ -83,6 +85,7 @@ export class MemoryGame{
         }
 
         public pickCard(playerId: string, index: number){
+            console.log("Expected pick from " + this.currentPlayer + " expected " + playerId )
             if(!this.isValidTurn(playerId)) return;
             if(index < 0 || index > 21) return;
             const currentCard = this.gameCards[index];
