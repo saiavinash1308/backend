@@ -63,6 +63,10 @@ export class Room {
       return this._prizePool
     }
 
+    getGameId(){
+      return this.gameId
+    }
+
     getRoomId() {
       return this.roomId;
     }

@@ -124,6 +124,21 @@ export class RoomManager {
         return {success: false, message: 'Room is full'}
     }
 
+
+    public quitRoom(roomId: string, socketId: string){
+        const room = appManager.getRooms().get(roomId);
+        if(!room) return;
+        if(room.getPlayers().length === 1 && room.getPlayers()[0].getSocket().id === socketId){
+            appManager.getUserToRoomMapping().delete(socketId);
+            appManager.getRooms().delete(roomId);
+            const gameId = room.getGameId();
+            if(roomId === appManager.getPendingRoomMappinngs().get(gameId)){
+                appManager.getPendingRoomMappinngs().delete(gameId);
+            }
+        }
+
+    }
+
     private getGameObject(roomId: string, gameType:DBGameType ): GameType{
         switch(gameType){
             case "LUDO":

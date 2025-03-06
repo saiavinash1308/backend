@@ -42,6 +42,7 @@ io.on('connection', (socket) => {
     })
     
     socket.on('disconnect', () => {
+        console.log("Disconnecting user");
         userManager.removeUser(socket.id)
     });
 })

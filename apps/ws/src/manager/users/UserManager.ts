@@ -49,6 +49,12 @@ class UserManager {
         user.getSocket().on('GET_ONLINE_PLAYERS', () => {
             const onlineUserSize = this.getOnlinePlayers();
             user.getSocket().emit('ONLINE_PLAYERS', onlineUserSize)
+        });
+        user.getSocket().on('QUIT_ROOM', async(data: string) => {
+            const socketId = user.getSocket().id;
+            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            if(!roomId) return;
+            roomManager.quitRoom(roomId, socketId);
         })
         user.getSocket().on('INIT_GAME', async(data: string) => {
             if(!data){
