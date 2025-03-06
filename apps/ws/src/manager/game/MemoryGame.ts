@@ -49,13 +49,6 @@ export class MemoryGame{
                 "Mind_8",
                 "Mind_9",
                 "Mind_10",
-                "Mind_11",
-                "Mind_12",
-                "Mind_13",
-                "Mind_14",
-                "Mind_15",
-                
-
             ]
             const duplicatedArray = [...iconConfigs, ...iconConfigs];
             const shuffledArray = duplicatedArray.sort(() => Math.random() - 0.5);
@@ -98,8 +91,6 @@ export class MemoryGame{
             };
             this.isCardOpened = true;
             const currentCard = this.gameCards[index];
-            //TODO: emit to open the card
-            setTimeout(() => {
             console.log("Running game picker...");
             const message = JSON.stringify({card: currentCard, index})
             socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
@@ -139,7 +130,6 @@ export class MemoryGame{
                 }, 1000);
                 
             }
-        }, 1000);
             
         }
 
