@@ -25,7 +25,7 @@ model User {
 model Wallet {
   walletId       String   @id @default(cuid())
   userId         String   @unique
-  currentBalance Float    @default(0)
+  currentBalance Float    @default(500)
   depositAmount  Float    @default(0)
   winningAmount  Float    @default(0)
   cashbackAmount Float    @default(0)
