@@ -50,6 +50,10 @@ export class AviatorGame{
         }, this._waitingTime);
     }
 
+    public get roomId(){
+        return this._roomId;
+    }
+
 
     private startGame() {
         if (this._interval) return; // Prevent multiple intervals
@@ -61,7 +65,6 @@ export class AviatorGame{
                 this.endGame()
                 return;
             }
-    
             this._rate = parseFloat((this._rate + 0.01).toFixed(2)); // Increment & fix decimal places
         }, 100);
     }
@@ -142,8 +145,7 @@ export class AviatorGame{
             } catch (error) {
                 console.log("Winner wallet not found");
             }
-        })
-
+        });
         this._biddings = new Map();
         this._roomId = createId();
         this.initializeGame();

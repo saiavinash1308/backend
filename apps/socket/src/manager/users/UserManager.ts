@@ -2,9 +2,11 @@ import rateLimiter from "../../auth/redis";
 import { validateExit, validateInitGame, validateLudoMove, validateMemoryPick, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
 import { appManager } from "../main/AppManager";
+import { aviatorManager } from "../room/AviatorManager";
 import { roomManager } from "../room/RoomManager";
 import { socketManager } from "../socket/SocketManager";
 import { User } from "./User";
+import {z} from 'zod'
 
 class UserManager {
     private static instance: UserManager
@@ -25,6 +27,7 @@ class UserManager {
         this.addFastLudoHandler(user);
         this.addCricketHandler(user);
         this.addMemoryListener(user);
+        this.addAviatorListener(user);
         this.onlineUsers.set(user.getSocket().id, user);
     }
 
@@ -240,6 +243,25 @@ class UserManager {
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
             gameManager.fetchMemoryGameAndUpdateTurn(roomId, user.getSocket().id);
+        })
+    }
+
+    private addAviatorListener(user: User){
+        user.getSocket().on("INIT_AVIATOR_GAME", () => {
+            aviatorManager.addPlayer(user);
+        });
+
+        user.getSocket().on("ADD_AVIATOR_BID", (data) => {
+            const isValidAddition = z.object({
+                amount: z.number(),
+            }).safeParse(data);
+            if(!isValidAddition.success) return;
+            const {amount} = isValidAddition.data;
+            aviatorManager.addBid(user, amount)
+        })
+
+        user.getSocket().on("AVIATOR_CASHOUT", () => {
+            aviatorManager.cashOutBid(user);
         })
     }
 }
