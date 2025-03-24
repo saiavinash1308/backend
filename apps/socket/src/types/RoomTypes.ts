@@ -1,0 +1,1 @@
+export type DBGameType = "LUDO" | "FAST_LUDO" | "CRICKET" | "RUMMY" | "MEMORYGAME" | "AVIATOR"

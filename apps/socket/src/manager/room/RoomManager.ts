@@ -1,7 +1,7 @@
 import { User } from "../users/User";
 import { Room } from "./Room";
 import { AddToPendingRoomResponse, GameDetailsResponse } from "../../interfaces/RoomManagerResponse";
-import { prisma } from "../../interfaces/RoomResponse";
+import { prisma } from "../../lib/client";
 import { UserExistsInRoomResponse } from "../../types/RoomManagerTypes";
 import { createId } from '@paralleldrive/cuid2'
 import { socketManager } from "../socket/SocketManager";
@@ -14,6 +14,7 @@ import { RummyGame } from "../game/RummyGame";
 import { GameType } from "../../types/GameTypes";
 import { DBGameType } from "../../types/RoomTypes";
 import { MemoryGame } from "../game/MemoryGame";
+import { AviatorGame } from "../game/AviatorGame";
 
 
 export class RoomManager {
@@ -151,6 +152,8 @@ export class RoomManager {
                 return new RummyGame(roomId)
             case "MEMORYGAME":
                 return new MemoryGame(roomId)
+            case "AVIATOR":
+                return new AviatorGame(roomId)
         }
     }
 

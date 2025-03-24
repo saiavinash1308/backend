@@ -142,6 +142,7 @@ enum GameType {
   CRICKET
   RUMMY
   MEMORYGAME
+  AVIATOR
 }
 
 enum TicketStatus {
