@@ -31,6 +31,7 @@ export class AviatorGame{
 
     private initializeGame(){
         const data = this._waitingTime.toString();
+        this._rate = 1.00
         for(const user of this.players.values()){
             user.getSocket().emit("AVIATOR_WAITING", data)
         }
@@ -50,16 +51,17 @@ export class AviatorGame{
         }, this._waitingTime);
     }
 
-    public get roomId(){
+    public getRoomId(){
         return this._roomId;
     }
-
 
     private startGame() {
         if (this._interval) return; // Prevent multiple intervals
     
         this._interval = setInterval(() => {
+            console.log(this._rate);
             if (this._rate >= this._maxRate) {
+                console.log("max rate reached" + this._rate)
                 clearInterval(this._interval!);
                 this._interval = null; // Reset interval
                 this.endGame()

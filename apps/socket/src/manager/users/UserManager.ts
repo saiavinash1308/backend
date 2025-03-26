@@ -224,7 +224,6 @@ class UserManager {
     private addMemoryListener(user: User){
         user.getSocket().on("PICK_CARD", (data) => {
             try {
-                console.log(data);
                 const isValidPick = validateMemoryPick.safeParse(data);
                 if(!isValidPick.success) return;
                 const index = parseInt(isValidPick.data);
@@ -252,11 +251,10 @@ class UserManager {
         });
 
         user.getSocket().on("ADD_AVIATOR_BID", (data) => {
-            const isValidAddition = z.object({
-                amount: z.number(),
-            }).safeParse(data);
+            console.log(data);
+            const amount = parseInt(data);
+            const isValidAddition = z.number().safeParse(amount);
             if(!isValidAddition.success) return;
-            const {amount} = isValidAddition.data;
             aviatorManager.addBid(user, amount)
         })
 

@@ -14,6 +14,7 @@ export const io = new Server(server, {
     cors: {
         origin: "*", // Allow any origin (adjust as needed for production)
         methods: ["GET", "POST"], // Allow only specific HTTP methods
+        
     }
 })
 app.get("/",async(_,res)=>{
@@ -38,11 +39,12 @@ io.on('connection', (socket) => {
             socket.emit('DISCONNECT_USER', message)
             return
         }
+        console.log("User connected and added");
         userManager.addUser(user);
     })
     
-    socket.on('disconnect', () => {
-        console.log("Disconnecting user");
+    socket.on('disconnect', (reason) => {
+        console.log(reason);
         userManager.removeUser(socket.id)
     });
 })
