@@ -13,6 +13,8 @@ interface WinRecord {
     amount: number
 }
 
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
+
 export class AviatorGame{
     private _roomId: string;
     private _isRunning: boolean = false;
@@ -150,6 +152,9 @@ export class AviatorGame{
         });
         this._biddings = new Map();
         this._roomId = createId();
-        this.initializeGame();
+        this._isRunning = false;
+        delay(2000).then(() => {
+            this.initializeGame();
+        })
     }
 }

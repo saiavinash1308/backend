@@ -97,6 +97,9 @@ class AviatorManager{
         bid.cashedOut = true;
         bid.rate = rate
         this.game.biddings.set(user.getUserId(), bid);
+        const amount = bid.investedAmount * rate;
+        const message = JSON.stringify({amount: amount});
+        user.getSocket().emit("AVIATOR_CASHOUT_SUCCESS", message);
     }
 }
 

@@ -254,7 +254,9 @@ class UserManager {
             console.log(data);
             const amount = parseInt(data);
             const isValidAddition = z.number().safeParse(amount);
+            console.log("Valid add bid: " + isValidAddition.success)
             if(!isValidAddition.success) return;
+            console.log("Adding bid");
             aviatorManager.addBid(user, amount)
         })
 
