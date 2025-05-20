@@ -1,9 +1,10 @@
-import { validateExit, validateInitGame, validateLudoMove, validateMemoryPick, validateRoomId } from "../../zod/validateGame";
+import { validateInitGame, validateLudoMove, validateMemoryPick, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
 import { appManager } from "../main/AppManager";
 import { roomManager } from "../room/RoomManager";
 import { socketManager } from "../socket/SocketManager";
 import { User } from "./User";
+import z, { optional } from 'zod'
 
 class UserManager {
     private static instance: UserManager
@@ -24,7 +25,8 @@ class UserManager {
         this.addFastLudoHandler(user);
         this.addCricketHandler(user);
         this.addMemoryListener(user);
-        this.onlineUsers.set(user.getSocket().id, user);
+        this.addGameHandler(user)
+        this.onlineUsers.set(user.socket.id, user);
     }
 
     removeUser(socketId: string) {
@@ -44,21 +46,12 @@ class UserManager {
         const randomValue = Math.floor(Math.random() * (150000 - 100000 + 1)) + 100000;
         return randomValue
     }
-    private addLudoHandler(user: User){
-        user.getSocket().on('GET_ONLINE_PLAYERS', () => {
-            const onlineUserSize = this.getOnlinePlayers();
-            user.getSocket().emit('ONLINE_PLAYERS', onlineUserSize)
-        });
-        user.getSocket().on('QUIT_ROOM', async(data: string) => {
-            const socketId = user.getSocket().id;
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
-            if(!roomId) return;
-            roomManager.quitRoom(roomId, socketId);
-        })
-        user.getSocket().on('INIT_GAME', async(data: string) => {
+
+    private addGameHandler(user: User){
+        user.socket.on('INIT_GAME', async(data: string) => {
             if(!data){
                 const response = JSON.stringify({ message: 'Invalid data' })
-                user.getSocket().emit('INIT_ERROR', response)
+                user.socket.emit('INIT_ERROR', response)
                 return
             }
             const gameId = data;
@@ -66,166 +59,175 @@ class UserManager {
             if(!isValidInit.success) return 
             await roomManager.createOrInsertIntoRoom(user, gameId)
         });
-        user.getSocket().on('ROLL_DICE', async(data) => {
-            const socketId = user.getSocket().id;
-            if(!data){
-                const response = JSON.stringify({ message: 'Invalid data' })
-                user.getSocket().emit('ROLL_ERROR', response)
-                return
-            }
-            const roomId = data;
-            const isValidRoll = validateRoomId.safeParse({roomId});
-            if(!isValidRoll.success) return
-            gameManager.fetchLudoGameAndRollDice(roomId, socketId)
-        })
-        user.getSocket().on("MOVE_PIECE", async(data) => {
-            const socketId = user.getSocket().id;
-            if(!data){
-                user.getSocket().emit("MOVE_ERROR", 'Invalid data')
-            }
-            const message = JSON.parse(data);
-            const isValidMove = validateLudoMove.safeParse(message)
-            if(!isValidMove.success) return 
-            const {piece, roomId} = isValidMove.data;
-            gameManager.fetchLudoGameAndMovePiece(roomId, socketId, parseInt(piece));
-            //call the move
 
-        })
-        user.getSocket().on("MOVE_UPDATED", async(data) => {
-            const socketId = user.getSocket().id;
-            console.log(`Move Updated called by ${socketId}`);
-            const roomId = appManager.getUserToRoomMapping().get(socketId);
+        user.socket.on('GET_ONLINE_PLAYERS', () => {
+            const onlineUserSize = this.getOnlinePlayers();
+            user.socket.emit('ONLINE_PLAYERS', onlineUserSize)
+        });
+        user.socket.on('QUIT_ROOM', async(data: string) => {
+            const socketId = user.socket.id;
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchLudoGameAndUpdateMove(roomId, socketId);
+            roomManager.quitRoom(roomId, socketId);
         })
-        user.getSocket().on("TURN_UPDATED", async(data) => {
-            const socketId = user.getSocket().id;
-            console.log("Next Turn issued by socketId: " + socketId);
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+    }
+    private addLudoHandler(user: User){
+        user.socket.on(gamePlayApi.ROLL_DICE, (data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchLudoGameAndUpdateTurn(roomId, socketId);
+            const isValidRoll = z.object({diceValue: z.number()}).safeParse(data)
+            if(!isValidRoll.success) return;
+            const diceValue = isValidRoll.data.diceValue
+            gameManager.fetchLudoGameAndRollDice(roomId, user.socket.id, diceValue);
         })
-        
-        // user.getSocket().on('EXIT_GAME', async(data: string) => {
-        //     const message = JSON.parse(data);
-        //     if(!message){
-        //         const response = JSON.stringify({ message: 'Invalid data' })
-        //         user.getSocket().emit('EXIT_ERROR', response)
-        //         return
-        //     }
-        //     const isValidExit = validateExit.safeParse(message);
-        //     if(!isValidExit.success) return 
-        //     const {roomId} = isValidExit.data
-        //     roomManager.exitRoom(user, roomId)
-        // })
+
+
+        user.socket.on(gamePlayApi.PLAYER_FINISHED_MOVING, (data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
+            console.log(data)
+            const isValidFinish = z.object({richedTheDestination: z.boolean().optional()}).safeParse(data)
+            if(!isValidFinish.success) return;
+            const richedTheDestination = isValidFinish.data.richedTheDestination
+            if(!roomId) return;
+            gameManager.fetchLudoGameAndFinishMoving(roomId, user.socket.id, richedTheDestination);
+        })
+
+        user.socket.on(gamePlayApi.SWITCH_PLAYER, () => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
+            if(!roomId) return;
+            gameManager.fetchLudoGameAndSwitchPlayer(roomId, user.socket.id);
+        });
+
+        user.socket.on(gamePlayApi.AVOID_SWITCH_PLAYER, () => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
+            if(!roomId) return;
+            gameManager.fetchLudoGameAndAvoidSwitchPlayer(roomId, user.socket.id);
+        });
+
+        user.socket.on(gamePlayApi.MOVE_PLAYER, (data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
+            if(!roomId) return;
+            const isValidMove = z.object({
+                pawnNo: z.number()
+            }).safeParse(data);
+            if(!isValidMove.success) return;
+            const pawn = isValidMove.data.pawnNo;
+            gameManager.fetchLudoGameAndMovePlayer(roomId, user.socket.id, pawn);
+        })
+
+        user.socket.on(gamePlayApi.ON_PLAYER_WIN, () => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
+            if(!roomId) return;
+            gameManager.fetchLudoGameAndPlayerWin(roomId, user.socket.id);
+        })
     }
 
     private addFastLudoHandler(user: User){
-        user.getSocket().on('TIME_UP', (data) => {
-            const socketId = user.getSocket().id;
+        user.socket.on('TIME_UP', (data) => {
+            const socketId = user.socket.id;
             console.log("Next Turn issued by socketId: " + socketId);
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             gameManager.fetchFastLudoGameAndEndGame(roomId);
         })
     }
 
     private addCricketHandler(user: User){
-        user.getSocket().on("BOWLER_RUN", (data) => {
+        user.socket.on("BOWLER_RUN", (data) => {
             if(!data) return
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             socketManager.broadcastToRoom(roomId, "BOWLER_RUN", data);
         });
 
-        user.getSocket().on("MOVE_BATSMAN", (data) => {
+        user.socket.on("MOVE_BATSMAN", (data) => {
             if(!data) return
             console.log("Moving Batsman: " + data);
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             socketManager.broadcastToRoom(roomId, "MOVE_BATSMAN", data);
         })
 
-        user.getSocket().on("CRICKET_IDLE", (data) => {
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+        user.socket.on("CRICKET_IDLE", (data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            socketManager.emitToOthers(roomId, "CRICKET_IDLE", data, user.getSocket().id);
+            socketManager.emitToOthers(roomId, "CRICKET_IDLE", data, user.socket.id);
         })
 
-        user.getSocket().on("BALL_HIT_POSITION", (data) => {
+        user.socket.on("BALL_HIT_POSITION", (data) => {
             if(!data) return
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             socketManager.broadcastToRoom(roomId, "BALL_HIT_POSITION", data);
         })
 
-        user.getSocket().on("GROUND_TARGET_MOVE", (data) => {
+        user.socket.on("GROUND_TARGET_MOVE", (data) => {
             if(!data) return
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             socketManager.broadcastToRoom(roomId, "GROUND_TARGET_MOVE", data);
         })
 
-        user.getSocket().on("BATSMAN_HIT", (data) => {
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+        user.socket.on("BATSMAN_HIT", (data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchCricketGameAndBatsmanHit(roomId, user.getSocket().id);
+            gameManager.fetchCricketGameAndBatsmanHit(roomId, user.socket.id);
             // socketManager.broadcastToRoom(roomId, "GROUND_TARGET_MOVE", data);
         })
 
 
-        user.getSocket().on("UPDATE_SCORE", (data) => {
+        user.socket.on("UPDATE_SCORE", (data) => {
             try {
                 if(!data) return
-                const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+                const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
                 if(!roomId) return;
                 const score = parseInt(data);
-                gameManager.fetchCricketGameAndUpdateScore(roomId, user.getSocket().id, score);
+                gameManager.fetchCricketGameAndUpdateScore(roomId, user.socket.id, score);
 
             } catch (error) {
                 return;
             }
         });
 
-        user.getSocket().on("WICKET", () => {
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+        user.socket.on("WICKET", () => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchCricketGameAndHitWicket(roomId, user.getSocket().id);
+            gameManager.fetchCricketGameAndHitWicket(roomId, user.socket.id);
         })
 
-        user.getSocket().on("RESET_BOWLER", (data) => {
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+        user.socket.on("RESET_BOWLER", (data) => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchCricketGameAndResetBowler(roomId, user.getSocket().id);
+            gameManager.fetchCricketGameAndResetBowler(roomId, user.socket.id);
         })
 
-        user.getSocket().on("RESET_BATSMAN", (data) => {
+        user.socket.on("RESET_BATSMAN", (data) => {
             console.log("Reset the batsman");
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchCricketGameAndResetBatsMan(roomId, user.getSocket().id);
+            gameManager.fetchCricketGameAndResetBatsMan(roomId, user.socket.id);
         })
     }
 
     private addMemoryListener(user: User){
-        user.getSocket().on("PICK_CARD", (data) => {
+        user.socket.on("PICK_CARD", (data) => {
             try {
                 const isValidPick = validateMemoryPick.safeParse(data);
                 if(!isValidPick.success) return;
                 const index = parseInt(isValidPick.data);
-                const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+                const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
                 if(!roomId) return;
-                gameManager.fetchMemoryGameAndPickCard(roomId, user.getSocket().id, index);
+                gameManager.fetchMemoryGameAndPickCard(roomId, user.socket.id, index);
             } catch (error) {
                 console.log(error)
             }
         })
 
-        user.getSocket().on("UPDATE_TURN", (data) => {
+        user.socket.on("UPDATE_TURN", (data) => {
             console.log("Updating turn")
-            const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchMemoryGameAndUpdateTurn(roomId, user.getSocket().id);
+            gameManager.fetchMemoryGameAndUpdateTurn(roomId, user.socket.id);
         })
     }
 }

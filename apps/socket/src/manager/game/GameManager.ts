@@ -25,71 +25,6 @@ export class GameManager{
         this.games.set(game.getRoomId(), game)
     }
 
-    fetchLudoGameAndRollDice(roomId: string, playerId: string){
-        const game = this.games.get(roomId);
-        if(!game) return;
-        const room = appManager.getRoom(roomId);
-        if(!room) return;
-        if(room.getGameType() === "LUDO"){
-            const ludogame = game as LudoGame
-            ludogame.rollDice(playerId)
-        }
-        else if(room.getGameType() === "FAST_LUDO"){
-            const fastludogame = game as FastLudoGame
-            fastludogame.rollDice(playerId)
-        }
-        return
-        
-    }
-
-    fetchLudoGameAndMovePiece(roomId: string, playerId: string, piece: number){
-        const game = this.games.get(roomId);
-        if(!game) return;
-        const room = appManager.getRoom(roomId);
-        if(!room) return;
-        if(room.getGameType() === "LUDO"){
-            const ludogame = game as LudoGame
-            ludogame.makeMove(playerId, piece)
-        }
-        else if(room.getGameType() === "FAST_LUDO"){
-            const fastludogame = game as FastLudoGame
-            fastludogame.makeMove(playerId, piece)
-        }
-        return
-    }
-
-    fetchLudoGameAndUpdateMove(roomId: string, playerId: string){
-        const game = this.games.get(roomId);
-        if(!game) return;
-        const room = appManager.getRoom(roomId);
-        if(!room) return;
-        if(room.getGameType() === "LUDO"){
-            const ludogame = game as LudoGame
-            ludogame.moveUpdate(playerId)
-        }
-        else if(room.getGameType() === "FAST_LUDO"){
-            const fastludogame = game as FastLudoGame
-            fastludogame.moveUpdate(playerId)
-        }
-        return
-    }
-
-    fetchLudoGameAndUpdateTurn(roomId: string, playerId: string){
-        const game = this.games.get(roomId);
-        if(!game) return;
-        const room = appManager.getRoom(roomId);
-        if(!room) return;
-        if(room.getGameType() === "LUDO"){
-            const ludogame = game as LudoGame
-            ludogame.forceUpdateTurn(playerId)
-        }
-        else if(room.getGameType() === "FAST_LUDO"){
-            const fastludogame = game as FastLudoGame
-            fastludogame.forceUpdateTurn(playerId)
-        }
-        return
-    }
-
     fetchFastLudoGameAndEndGame(roomId: string){
         const game = this.games.get(roomId);
         if(!game) return;
@@ -160,6 +95,62 @@ export class GameManager{
         if(!room || room.getGameType() !== "MEMORYGAME")  return;
         const memorygame = game as MemoryGame
         memorygame.handleTurn(playerId);
+    }
+
+    //LUDO Functions
+
+    fetchLudoGameAndRollDice(roomId: string, playerId: string, diceValue: number){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "LUDO")  return;
+        const ludoGame = game as LudoGame
+        ludoGame.rollDice(playerId, diceValue);
+    }
+
+    fetchLudoGameAndFinishMoving(roomId: string, playerId: string, reached: boolean | undefined){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "LUDO")  return;
+        const ludoGame = game as LudoGame
+        ludoGame.finishMoving(playerId, reached);
+    }
+
+    fetchLudoGameAndSwitchPlayer(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "LUDO")  return;
+        const ludoGame = game as LudoGame
+        ludoGame.switchPlayer(playerId);
+    }
+
+    fetchLudoGameAndAvoidSwitchPlayer(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "LUDO")  return;
+        const ludoGame = game as LudoGame
+        ludoGame.avoidSwitchPlayer(playerId);
+    }
+
+    fetchLudoGameAndMovePlayer(roomId: string, playerId: string, pawn: number){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "LUDO")  return;
+        const ludoGame = game as LudoGame
+        ludoGame.movePlayer(playerId, pawn)
+    }
+
+    fetchLudoGameAndPlayerWin(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "LUDO")  return;
+        const ludoGame = game as LudoGame
+        ludoGame.playerWin(playerId);
     }
 
 }

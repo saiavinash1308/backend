@@ -1,179 +1,108 @@
-import { Socket } from "socket.io";
-import { LudoBoard } from "../board/LudoBoard";
 import { appManager } from "../main/AppManager";
-import { Room } from "../room/Room";
 import { socketManager } from "../socket/SocketManager";
 
-export class Dice{
-    private diceValue: number = 5;
-    private isRolled: boolean = false;
+class DiceManager {
+    private _diceValue = 1
+    private _diceRolled = false
 
-    private getRandomValue() {
-        const values = [4, 5, 6];
-        const randomIndex = Math.floor(Math.random() * values.length);
-        return values[randomIndex];
-      }
-
-    rollDice(){
-        // this.diceValue = Math.floor(Math.random() * 6) + 1;
-        // this.diceValue = 6;
-        this.diceValue = this.getRandomValue();
-        this.isRolled = true;
-        return this.diceValue
+    public set diceValue(value: number){
+        this._diceValue = value;
+        this._diceRolled = true
     }
 
-    getDiceValue(){
-        return this.diceValue
+    public get diceValue(){
+        return this._diceValue
     }
 
-    isDiceRolled(){
-        return this.isRolled
+    public set diceRolled(value: boolean){
+        this._diceRolled = value
     }
 
-    updateDiceState(){
-        this.isRolled = false;
+    public get diceRolled(){
+        return this._diceRolled
     }
 
 }
 
-
 export class LudoGame{
-    private readonly roomId: string;
-    private readonly board: LudoBoard;
-    private readonly players: string[] = [];
-    private dice: Dice = new Dice();
-    private room: Room;
-    private currentPlayer: string;
-    private turnTimer: NodeJS.Timeout | null = null; // Timer ID for the turn
-    private turnTimeLimit = 10000;
-
+    private roomId: string
+    private diceManager = new DiceManager();
+    
+    private currentPlayer: string
     constructor(roomId: string){
         this.roomId = roomId
         const room = appManager.getRooms().get(roomId);
         if(!room) throw new Error('Room not found');
-        this.room = room;
-        const sockets = this.room.getPlayerSockets();
-        sockets.forEach((player) => {
-            this.players.push(player.id);
-        })
-        this.currentPlayer = this.players[0]
-        this.board = new LudoBoard(sockets, this.roomId)
+        const players = room.getPlayers();
+        const entryFee = room.getEntryFee();
+        this.currentPlayer = players[0].socket.id
         const newUsers = new Array<{socketId: string, username: string}>();
-        this.room.getPlayers().forEach((player) => newUsers.push({socketId: player.getSocket().id, username: player.username}))
-        const message = JSON.stringify({roomId, users: newUsers, prizePool: this.room.prizePool})
-        socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_STOP_SEARCH", 'Stop Searching');
-        socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_START_GAME", message);
-        setTimeout(() => {
-            socketManager.broadcastToRoom(roomId, "CLASSIC_LUDO_CURRENT_TURN", this.currentPlayer)
-            this.startTurnTimer();
-        }, 1000);
+        players.forEach((player) => newUsers.push({socketId: player.socket.id, username: player.username}))
+        const message = JSON.stringify({roomId, users: newUsers, entryFee});
+        socketManager.broadcastToRoom(roomId, gamePlayApi.START_GAME, message);
     }
 
-    getGameType(){
-        return this.room.getGameType()
-    }
-
-    private isValidTurn(playerId: string){
-        
-        return playerId === this.currentPlayer
-    }
-
-    private getPlayerIndex(playerId: string){
-        return this.players.findIndex((player) => player === playerId)
-    }
-
-    public rollDice(playerId: string){
-        console.log("Roll Dice socket requested: " + this.currentPlayer + " Socket Recieved: " + playerId);
-        if(!this.isValidTurn(playerId)) return
-        this.resetTurnTimer(); 
-        this.board.setIsPieceMoved(false);
-        const diceValue = this.dice.rollDice()
-        const playerIndex = this.getPlayerIndex(playerId);
-        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_DICE_ROLLED', JSON.stringify({playerId, diceValue}))
-        setTimeout(() => {
-            if(diceValue !== 6 && this.board.checkAllPiecesAtStart(playerId)){
-                console.log("This is dice value in roll Dice: " + diceValue + " Current turn is called here");
-                this.updateTurn();
-                return
-            }
-        }, 1400);
-        this.startTurnTimer(); 
-        
-    }
-
-    private startTurnTimer() {
-        if (this.turnTimer) clearTimeout(this.turnTimer); // Clear any existing timer
-        this.turnTimer = setTimeout(() => {
-            console.log(`Timer expired for player: ${this.currentPlayer}`);
-            this.updateTurn(); // Automatically update turn after 10 seconds
-        }, this.turnTimeLimit);
-    }
-
-    private resetTurnTimer() {
-        if (this.turnTimer) clearTimeout(this.turnTimer); // Clear existing timer
-    }
-
-    public makeMove(playerId: string, piece: number){
-        this.resetTurnTimer();
-        if(!this.isValidTurn(playerId)) return;
-        if(piece < 0 || piece > 3) return;
-        const diceValue = this.dice.getDiceValue();
-        const isMoveValid = this.board.makeMove(playerId, piece, diceValue);
-        if(isMoveValid){
-            this.board.setIsPieceMoved(true);
-            if(this.board.checkWin(playerId)){
-                this.endGame(playerId);
-                return;
-            }
-            
-        }
-    }
-
-    //status check
-
-    public moveUpdate(playerId: string){
-        if(!this.isValidTurn(playerId)) return;
-        const diceValue = this.dice.getDiceValue();
-        if(!this.board.getIsPieceMoved()) return
-        if(this.board.getIsPieceKilled()){
-            socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_CURRENT_TURN', this.currentPlayer)
-            this.board.setIsPieceKilled(false);
-            this.startTurnTimer();
-            return;
-        }
-        if(diceValue === 6){
-            socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_CURRENT_TURN', this.currentPlayer);
-            this.startTurnTimer();
-            return;
-        }
-        this.updateTurn();
-        return;
-                
-    }
-
-    private updateTurn(){
-        this.resetTurnTimer(); 
-        const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
-        this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
-        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_CURRENT_TURN', this.currentPlayer)
-        socketManager.broadcastToRoom(this.roomId, "CLASSIC_LUDO_PIECE_POSITIONS", this.board.printAllPositions())
-        this.startTurnTimer();
-    }
-
-    public forceUpdateTurn(playerId: string){
-        console.log(`Force update from ${playerId} expected ${this.currentPlayer}`);
-        if(!this.isValidTurn(playerId)) return 
-        const currentPlayerIndex = this.getPlayerIndex(this.currentPlayer);
-        this.currentPlayer = this.players[(currentPlayerIndex + 1) % this.players.length];
-        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_CURRENT_TURN', this.currentPlayer)
-    }
-
-    public getRoomId(){
+    getRoomId(){
         return this.roomId
     }
 
-    private endGame(playerId: string){
-        //store details in the db
-        socketManager.broadcastToRoom(this.roomId, 'CLASSIC_LUDO_GAME_OVER', JSON.stringify({playerId}))   
+    private isValidTurn(playerId: string){
+        return this.currentPlayer === playerId
     }
+
+    public rollDice(playerId: string, diceValue: number){
+        if(!this.isValidTurn(playerId)) return;
+        if(this.diceManager.diceRolled) return;
+        this.diceManager.diceValue = diceValue
+        socketManager.emitToOthers(this.roomId, gamePlayApi.ROLL_DICE, JSON.stringify({diceValue}), playerId);
+    }
+
+    private getNextTurn(){
+        const room = appManager.getRooms().get(this.roomId);
+        if(!room) return null
+        const players = room.getPlayers();
+        const index = players.findIndex((player) => player.socket.id === this.currentPlayer);
+        this.currentPlayer = players[(index + 1) % players.length].socket.id
+        return this.currentPlayer
+    }
+
+    public finishMoving(playerId: string, reached: boolean | undefined){
+        if(!this.isValidTurn(playerId)) return;
+        const diceValue = this.diceManager.diceValue
+        if ( diceValue === 6 || reached) {
+            socketManager.broadcastToRoom(this.roomId, gamePlayApi.PLAYER_FINISHED_MOVING, JSON.stringify({nextPlayerId: this.currentPlayer,
+                   diceValue}))
+            return
+        }
+        const nextPlayerId = this.getNextTurn()
+        socketManager.broadcastToRoom(this.roomId, gamePlayApi.PLAYER_FINISHED_MOVING, JSON.stringify({nextPlayerId,diceValue}))
+    }
+
+    public switchPlayer(playerId: string){
+        if(!this.isValidTurn(playerId)) return;
+        const nextPlayerId = this.getNextTurn()
+        socketManager.broadcastToRoom(this.roomId, gamePlayApi.SWITCH_PLAYER, JSON.stringify({nextPlayerId}))
+    }
+
+    public avoidSwitchPlayer(playerId: string){
+        if(!this.isValidTurn(playerId)) return;
+        socketManager.emitToOthers(this.roomId, gamePlayApi.AVOID_SWITCH_PLAYER, JSON.stringify({diceValue: this.diceManager.diceValue}), playerId)
+    }
+
+    public movePlayer(playerId: string, pawn: number){
+        if(!this.isValidTurn(playerId)) return;
+        socketManager.emitToOthers(this.roomId, gamePlayApi.MOVE_PLAYER, JSON.stringify(({playerId, pawnNo: pawn, diceValue: this.diceManager.diceValue})), playerId)
+    }
+
+    public playerWin(playerId: string){
+        if(!this.isValidTurn(playerId)) return;
+        socketManager.emitToOthers(this.roomId, gamePlayApi.ON_PLAYER_WIN, JSON.stringify({ playerId }), playerId);
+    }
+
+
+
+
+
+
+
 }

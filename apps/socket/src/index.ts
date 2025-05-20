@@ -25,7 +25,6 @@ app.get("/",async(_,res)=>{
 })
 
 io.on('connection', (socket) => {
-    socket.send('Connected to socket server')
     socket.on('ADD_USER', (data) => {
         const token = data;
         if(!token){
@@ -39,7 +38,6 @@ io.on('connection', (socket) => {
             socket.emit('DISCONNECT_USER', message)
             return
         }
-        console.log("User connected and added");
         userManager.addUser(user);
     })
     

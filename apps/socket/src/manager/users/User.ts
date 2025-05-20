@@ -1,19 +1,20 @@
 import { Socket } from "socket.io";
 export class User{
-    private readonly userId: string;
-    private readonly socket: Socket;
+    private readonly _userId: string;
+    private readonly _socket: Socket;
     private readonly _username: string;
     constructor(userId: string, socket: Socket, username: string) {
-        this.userId = userId;
-        this.socket = socket;
+        this._userId = userId;
+        this._socket = socket;
         this._username = username;
     }
 
-    public getSocket(){
-        return this.socket
+    public get socket(){
+        return this._socket
     }
-    public getUserId(){
-        return this.userId
+
+    public get userId(){
+        return this._userId
     }
 
     public get username(){
