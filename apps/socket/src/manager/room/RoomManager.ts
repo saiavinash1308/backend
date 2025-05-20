@@ -52,15 +52,15 @@ export class RoomManager {
             if(gameDetails){
                 const wallet = await prisma.wallet.findUnique({
                     where: {
-                        userId: user.getUserId()
+                        userId: user.userId
                     }
                 })
                 if(!wallet){
-                    user.getSocket().emit("WALLET_NOT_FOUND")
+                    user.socket.emit("WALLET_NOT_FOUND")
                     return;
                 }
                 if(wallet.currentBalance < gameDetails.entryFee){
-                    user.getSocket().emit("INSUFFICIENT_FUNDS");
+                    user.socket.emit("INSUFFICIENT_FUNDS");
                     return;
                 }
                 await prisma.wallet.update({
@@ -77,14 +77,14 @@ export class RoomManager {
                 const room = new Room(roomId, gameId, gameDetails.maxPlayers, user, gameDetails.gameType, gameDetails.entryFee, gameDetails.prizePool);
                 appManager.getRooms().set(roomId, room);
                 appManager.getPendingRoomMappinngs().set(gameId, roomId)
-                appManager.getUserToRoomMapping().set(user.getSocket().id, roomId);
+                appManager.getUserToRoomMapping().set(user.socket.id, roomId);
                 const message = JSON.stringify({ message: 'Room created', roomId })
-                user.getSocket().emit('ROOM_CREATED', message)
+                user.socket.emit('ROOM_CREATED', message)
             }
             else{
 
                 const message = JSON.stringify({ message: 'Game not found' })
-                user.getSocket().emit('GAME_NOT_FOUND', message)
+                user.socket.emit('GAME_NOT_FOUND', message)
             }
         }
     }
@@ -95,7 +95,7 @@ export class RoomManager {
         if(pendingRoom && pendingRoom.isPendingRoom()){
             const wallet = await prisma.wallet.findUnique({
                 where: {
-                    userId: user.getUserId()
+                    userId: user.userId
                 }
             })
             if(!wallet){
@@ -115,7 +115,7 @@ export class RoomManager {
                 }
             })
             pendingRoom.addPlayer(user);
-            appManager.getUserToRoomMapping().set(user.getSocket().id, roomId);
+            appManager.getUserToRoomMapping().set(user.socket.id, roomId);
             return {success: true, message: 'User added to room'} 
         }
         if(!pendingRoom){
@@ -128,7 +128,7 @@ export class RoomManager {
     public quitRoom(roomId: string, socketId: string){
         const room = appManager.getRooms().get(roomId);
         if(!room) return;
-        if(room.getPlayers().length === 1 && room.getPlayers()[0].getSocket().id === socketId){
+        if(room.getPlayers().length === 1 && room.getPlayers()[0].socket.id === socketId){
             appManager.getUserToRoomMapping().delete(socketId);
             appManager.getRooms().delete(roomId);
             const gameId = room.getGameId();
@@ -156,7 +156,7 @@ export class RoomManager {
 
 
     async createOrInsertIntoRoom(user: User, gameId: string){
-        const socket = user.getSocket()
+        const socket = user.socket
         if(this.checkUserExistsInRoom(socket.id)){
             const message = JSON.stringify({ message: 'User already in room' })
             socket.emit('USER_ALREADY_IN_ROOM', message)
@@ -178,7 +178,7 @@ export class RoomManager {
                 
             }else{
                 if(data.message === "Insufficient Funds"){
-                    user.getSocket().emit("INSUFFICIENT_FUNDS");
+                    user.socket.emit("INSUFFICIENT_FUNDS");
                     return;
                 }
                 const message = JSON.stringify({ message: data.message })
