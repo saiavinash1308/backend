@@ -29,7 +29,7 @@ export class Room {
       setTimeout(() => {
         if(this.players.length < maxPlayers){
           this.players.forEach(player => {
-            player.getSocket().emit("MATCH_MAKING_FAILED", "Unable to find players. Please try after sometime")
+            player.socket.emit("MATCH_MAKING_FAILED", "Unable to find players. Please try after sometime")
           })
           appManager.getRooms().delete(roomId);
           for (const [user, room] of appManager.getUserToRoomMapping().entries()) {
@@ -88,7 +88,7 @@ export class Room {
     }
 
     getPlayerSockets(){
-      return this.players.map(player => player.getSocket())
+      return this.players.map(player => player.socket)
     }
   
     getPlayerCount() {
