@@ -1,4 +1,3 @@
-import rateLimiter from "../../auth/redis";
 import { appManager } from "../main/AppManager";
 import { Room } from "../room/Room";
 import { socketManager } from "../socket/SocketManager";
@@ -57,10 +56,6 @@ export class CricketGame {
     public updateScore(playerId: string, score: number){
         if(!this.isBatsman(playerId)) return;
         if(this.isScoreUpdated) return
-        if(!rateLimiter.hasBatsManHitLimit(this.roomId)) {
-            console.log(true);
-            return
-        };
         console.log("Score: " + score)
         if(playerId === this.player1){
             this.player1Score += score; 

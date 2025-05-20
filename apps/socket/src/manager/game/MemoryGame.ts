@@ -1,4 +1,3 @@
-import rateLimiter from "../../auth/redis";
 import { appManager } from "../main/AppManager";
 import { Room } from "../room/Room";
 import { socketManager } from "../socket/SocketManager";
@@ -77,6 +76,7 @@ export class MemoryGame{
         public getRoomId(){
             return this.roomId;
         }
+        
 
         public pickCard(playerId: string, index: number){
             console.log("Expected pick from " + this.currentPlayer + " expected " + playerId )
@@ -91,7 +91,6 @@ export class MemoryGame{
             };
             this.isCardOpened = true;
             const currentCard = this.gameCards[index];
-            console.log("Running game picker...");
             const message = JSON.stringify({card: currentCard, index})
             socketManager.broadcastToRoom(this.roomId, "OPEN_CARD", message);
             this.isCardOpened = false
@@ -104,6 +103,7 @@ export class MemoryGame{
             if((this.card1 === currentCard)){
                     this.currentPlayer === this.player1 ? this.player1Score++  : this.player2Score++
                     //TODO: update score with same current turn and remove cards
+                    console.log("Player1 score: " + this.player1Score + " Player2Score: " + this.player2Score)
                     setTimeout(() => {
                         if(this.player1Score + this.player2Score < 11){
                             const message = JSON.stringify({playerId: this.currentPlayer, index1: this.card1Index, index2: index, score1: this.player1Score, score2: this.player2Score})

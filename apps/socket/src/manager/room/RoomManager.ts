@@ -14,7 +14,6 @@ import { RummyGame } from "../game/RummyGame";
 import { GameType } from "../../types/GameTypes";
 import { DBGameType } from "../../types/RoomTypes";
 import { MemoryGame } from "../game/MemoryGame";
-import { AviatorGame } from "../game/AviatorGame";
 
 
 export class RoomManager {
@@ -152,8 +151,6 @@ export class RoomManager {
                 return new RummyGame(roomId)
             case "MEMORYGAME":
                 return new MemoryGame(roomId)
-            case "AVIATOR":
-                return new AviatorGame(roomId)
         }
     }
 

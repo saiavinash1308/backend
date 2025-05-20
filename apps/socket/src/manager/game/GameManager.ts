@@ -150,7 +150,6 @@ export class GameManager{
         const room = appManager.getRoom(roomId);
         if(!room || room.getGameType() !== "MEMORYGAME")  return;
         const memorygame = game as MemoryGame
-        console.log("Calling game picker...")
         memorygame.pickCard(playerId, index);
     }
 

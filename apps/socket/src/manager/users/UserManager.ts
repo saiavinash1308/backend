@@ -1,12 +1,9 @@
-import rateLimiter from "../../auth/redis";
 import { validateExit, validateInitGame, validateLudoMove, validateMemoryPick, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
 import { appManager } from "../main/AppManager";
-import { aviatorManager } from "../room/AviatorManager";
 import { roomManager } from "../room/RoomManager";
 import { socketManager } from "../socket/SocketManager";
 import { User } from "./User";
-import {z} from 'zod'
 
 class UserManager {
     private static instance: UserManager
@@ -27,7 +24,6 @@ class UserManager {
         this.addFastLudoHandler(user);
         this.addCricketHandler(user);
         this.addMemoryListener(user);
-        this.addAviatorListener(user);
         this.onlineUsers.set(user.getSocket().id, user);
     }
 
@@ -72,10 +68,6 @@ class UserManager {
         });
         user.getSocket().on('ROLL_DICE', async(data) => {
             const socketId = user.getSocket().id;
-            if(!await rateLimiter.hasRollLimit(socketId)){
-                console.log(`User ${socketId} have no  limit to roll dice`);
-                return
-            }
             if(!data){
                 const response = JSON.stringify({ message: 'Invalid data' })
                 user.getSocket().emit('ROLL_ERROR', response)
@@ -88,10 +80,6 @@ class UserManager {
         })
         user.getSocket().on("MOVE_PIECE", async(data) => {
             const socketId = user.getSocket().id;
-            if(!await rateLimiter.hasMakeMoveLimit(socketId)) {
-                console.log(`User ${socketId} have no  limit to move piece`);
-                return
-            }
             if(!data){
                 user.getSocket().emit("MOVE_ERROR", 'Invalid data')
             }
@@ -106,14 +94,12 @@ class UserManager {
         user.getSocket().on("MOVE_UPDATED", async(data) => {
             const socketId = user.getSocket().id;
             console.log(`Move Updated called by ${socketId}`);
-            if(!await rateLimiter.hasMoveUpdateLimit(socketId)) return;
             const roomId = appManager.getUserToRoomMapping().get(socketId);
             if(!roomId) return;
             gameManager.fetchLudoGameAndUpdateMove(roomId, socketId);
         })
         user.getSocket().on("TURN_UPDATED", async(data) => {
             const socketId = user.getSocket().id;
-            if(!await rateLimiter.handleForceUpdateMove()) return;
             console.log("Next Turn issued by socketId: " + socketId);
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
@@ -229,8 +215,6 @@ class UserManager {
                 const index = parseInt(isValidPick.data);
                 const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
                 if(!roomId) return;
-                if(!rateLimiter.hasCardLimit(roomId)) return
-                console.log("Game manager picking...")
                 gameManager.fetchMemoryGameAndPickCard(roomId, user.getSocket().id, index);
             } catch (error) {
                 console.log(error)
@@ -242,26 +226,6 @@ class UserManager {
             const roomId = appManager.getUserToRoomMapping().get(user.getSocket().id);
             if(!roomId) return;
             gameManager.fetchMemoryGameAndUpdateTurn(roomId, user.getSocket().id);
-        })
-    }
-
-    private addAviatorListener(user: User){
-        user.getSocket().on("INIT_AVIATOR_GAME", () => {
-            aviatorManager.addPlayer(user);
-        });
-
-        user.getSocket().on("ADD_AVIATOR_BID", (data) => {
-            console.log(data);
-            const amount = parseInt(data);
-            const isValidAddition = z.number().safeParse(amount);
-            console.log("Valid add bid: " + isValidAddition.success)
-            if(!isValidAddition.success) return;
-            console.log("Adding bid");
-            aviatorManager.addBid(user, amount)
-        })
-
-        user.getSocket().on("AVIATOR_CASHOUT", () => {
-            aviatorManager.cashOutBid(user);
         })
     }
 }
