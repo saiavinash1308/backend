@@ -1,10 +1,11 @@
+import { AVOID_SWITCH_PLAYER, MATCH_MAKING, MOVE_PLAYER, ON_PLAYER_WIN, PLAYER_FINISHED_MOVING, ROLL_DICE, SWITCH_PLAYER } from "../../messages/ludomessage";
 import { validateInitGame, validateLudoMove, validateMemoryPick, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
 import { appManager } from "../main/AppManager";
 import { roomManager } from "../room/RoomManager";
 import { socketManager } from "../socket/SocketManager";
 import { User } from "./User";
-import z, { optional } from 'zod'
+import z from 'zod'
 
 class UserManager {
     private static instance: UserManager
@@ -49,6 +50,7 @@ class UserManager {
 
     private addGameHandler(user: User){
         user.socket.on('INIT_GAME', async(data: string) => {
+            console.log("Init game")
             if(!data){
                 const response = JSON.stringify({ message: 'Invalid data' })
                 user.socket.emit('INIT_ERROR', response)
@@ -72,17 +74,18 @@ class UserManager {
         })
     }
     private addLudoHandler(user: User){
-        user.socket.on(gamePlayApi.ROLL_DICE, (data) => {
+        user.socket.on(ROLL_DICE, (data) => {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             const isValidRoll = z.object({diceValue: z.number()}).safeParse(data)
             if(!isValidRoll.success) return;
             const diceValue = isValidRoll.data.diceValue
             gameManager.fetchLudoGameAndRollDice(roomId, user.socket.id, diceValue);
-        })
+        });
 
 
-        user.socket.on(gamePlayApi.PLAYER_FINISHED_MOVING, (data) => {
+
+        user.socket.on(PLAYER_FINISHED_MOVING, (data) => {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             console.log(data)
             const isValidFinish = z.object({richedTheDestination: z.boolean().optional()}).safeParse(data)
@@ -92,19 +95,19 @@ class UserManager {
             gameManager.fetchLudoGameAndFinishMoving(roomId, user.socket.id, richedTheDestination);
         })
 
-        user.socket.on(gamePlayApi.SWITCH_PLAYER, () => {
+        user.socket.on(SWITCH_PLAYER, () => {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             gameManager.fetchLudoGameAndSwitchPlayer(roomId, user.socket.id);
         });
 
-        user.socket.on(gamePlayApi.AVOID_SWITCH_PLAYER, () => {
+        user.socket.on(AVOID_SWITCH_PLAYER, () => {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             gameManager.fetchLudoGameAndAvoidSwitchPlayer(roomId, user.socket.id);
         });
 
-        user.socket.on(gamePlayApi.MOVE_PLAYER, (data) => {
+        user.socket.on(MOVE_PLAYER, (data) => {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             const isValidMove = z.object({
@@ -115,7 +118,7 @@ class UserManager {
             gameManager.fetchLudoGameAndMovePlayer(roomId, user.socket.id, pawn);
         })
 
-        user.socket.on(gamePlayApi.ON_PLAYER_WIN, () => {
+        user.socket.on(ON_PLAYER_WIN, () => {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             gameManager.fetchLudoGameAndPlayerWin(roomId, user.socket.id);

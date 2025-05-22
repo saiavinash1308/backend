@@ -1,3 +1,4 @@
+import { AVOID_SWITCH_PLAYER, MOVE_PLAYER, ON_PLAYER_WIN, PLAYER_FINISHED_MOVING, ROLL_DICE, START_GAME, SWITCH_PLAYER } from "../../messages/ludomessage";
 import { appManager } from "../main/AppManager";
 import { socketManager } from "../socket/SocketManager";
 
@@ -28,6 +29,7 @@ export class LudoGame{
     private roomId: string
     private diceManager = new DiceManager();
     
+    
     private currentPlayer: string
     constructor(roomId: string){
         this.roomId = roomId
@@ -38,8 +40,9 @@ export class LudoGame{
         this.currentPlayer = players[0].socket.id
         const newUsers = new Array<{socketId: string, username: string}>();
         players.forEach((player) => newUsers.push({socketId: player.socket.id, username: player.username}))
+        console.log("Starting game...")
         const message = JSON.stringify({roomId, users: newUsers, entryFee});
-        socketManager.broadcastToRoom(roomId, gamePlayApi.START_GAME, message);
+        socketManager.broadcastToRoom(roomId, START_GAME, message);
     }
 
     getRoomId(){
@@ -54,7 +57,7 @@ export class LudoGame{
         if(!this.isValidTurn(playerId)) return;
         if(this.diceManager.diceRolled) return;
         this.diceManager.diceValue = diceValue
-        socketManager.emitToOthers(this.roomId, gamePlayApi.ROLL_DICE, JSON.stringify({diceValue}), playerId);
+        socketManager.emitToOthers(this.roomId, ROLL_DICE, JSON.stringify({diceValue}), playerId);
     }
 
     private getNextTurn(){
@@ -70,33 +73,33 @@ export class LudoGame{
         if(!this.isValidTurn(playerId)) return;
         const diceValue = this.diceManager.diceValue
         if ( diceValue === 6 || reached) {
-            socketManager.broadcastToRoom(this.roomId, gamePlayApi.PLAYER_FINISHED_MOVING, JSON.stringify({nextPlayerId: this.currentPlayer,
+            socketManager.broadcastToRoom(this.roomId, PLAYER_FINISHED_MOVING, JSON.stringify({nextPlayerId: this.currentPlayer,
                    diceValue}))
             return
         }
         const nextPlayerId = this.getNextTurn()
-        socketManager.broadcastToRoom(this.roomId, gamePlayApi.PLAYER_FINISHED_MOVING, JSON.stringify({nextPlayerId,diceValue}))
+        socketManager.broadcastToRoom(this.roomId, PLAYER_FINISHED_MOVING, JSON.stringify({nextPlayerId,diceValue}))
     }
 
     public switchPlayer(playerId: string){
         if(!this.isValidTurn(playerId)) return;
         const nextPlayerId = this.getNextTurn()
-        socketManager.broadcastToRoom(this.roomId, gamePlayApi.SWITCH_PLAYER, JSON.stringify({nextPlayerId}))
+        socketManager.broadcastToRoom(this.roomId, SWITCH_PLAYER, JSON.stringify({nextPlayerId}))
     }
 
     public avoidSwitchPlayer(playerId: string){
         if(!this.isValidTurn(playerId)) return;
-        socketManager.emitToOthers(this.roomId, gamePlayApi.AVOID_SWITCH_PLAYER, JSON.stringify({diceValue: this.diceManager.diceValue}), playerId)
+        socketManager.emitToOthers(this.roomId, AVOID_SWITCH_PLAYER, JSON.stringify({diceValue: this.diceManager.diceValue}), playerId)
     }
 
     public movePlayer(playerId: string, pawn: number){
         if(!this.isValidTurn(playerId)) return;
-        socketManager.emitToOthers(this.roomId, gamePlayApi.MOVE_PLAYER, JSON.stringify(({playerId, pawnNo: pawn, diceValue: this.diceManager.diceValue})), playerId)
+        socketManager.emitToOthers(this.roomId, MOVE_PLAYER, JSON.stringify(({playerId, pawnNo: pawn, diceValue: this.diceManager.diceValue})), playerId)
     }
 
     public playerWin(playerId: string){
         if(!this.isValidTurn(playerId)) return;
-        socketManager.emitToOthers(this.roomId, gamePlayApi.ON_PLAYER_WIN, JSON.stringify({ playerId }), playerId);
+        socketManager.emitToOthers(this.roomId, ON_PLAYER_WIN, JSON.stringify({ playerId }), playerId);
     }
 
 
