@@ -108,40 +108,40 @@ export class GameManager{
         ludoGame.rollDice(playerId, diceValue);
     }
 
-    fetchLudoGameAndFinishMoving(roomId: string, playerId: string, reached: boolean | undefined){
+    fetchLudoGameAndFinishMoving(roomId: string, playerId: string, diceValue: number, reached: boolean){
         const game = this.games.get(roomId);
         if(!game) return;
         const room = appManager.getRoom(roomId);
         if(!room || room.getGameType() !== "LUDO")  return;
         const ludoGame = game as LudoGame
-        ludoGame.finishMoving(playerId, reached);
+        ludoGame.finishMoving(playerId, diceValue, reached);
     }
 
-    fetchLudoGameAndSwitchPlayer(roomId: string, playerId: string){
+    fetchLudoGameAndSwitchPlayer(roomId: string, playerId: string, diceValue: number){
         const game = this.games.get(roomId);
         if(!game) return;
         const room = appManager.getRoom(roomId);
         if(!room || room.getGameType() !== "LUDO")  return;
         const ludoGame = game as LudoGame
-        ludoGame.switchPlayer(playerId);
+        ludoGame.switchPlayer(playerId, diceValue);
     }
 
-    fetchLudoGameAndAvoidSwitchPlayer(roomId: string, playerId: string){
+    fetchLudoGameAndAvoidSwitchPlayer(roomId: string, playerId: string, diceValue: number){
         const game = this.games.get(roomId);
         if(!game) return;
         const room = appManager.getRoom(roomId);
         if(!room || room.getGameType() !== "LUDO")  return;
         const ludoGame = game as LudoGame
-        ludoGame.avoidSwitchPlayer(playerId);
+        ludoGame.avoidSwitchPlayer(playerId, diceValue);
     }
 
-    fetchLudoGameAndMovePlayer(roomId: string, playerId: string, pawn: number){
+    fetchLudoGameAndMovePlayer(roomId: string, playerId: string, pawn: number, diceValue: number){
         const game = this.games.get(roomId);
         if(!game) return;
         const room = appManager.getRoom(roomId);
         if(!room || room.getGameType() !== "LUDO")  return;
         const ludoGame = game as LudoGame
-        ludoGame.movePlayer(playerId, pawn)
+        ludoGame.movePlayer(playerId, pawn, diceValue)
     }
 
     fetchLudoGameAndPlayerWin(roomId: string, playerId: string){

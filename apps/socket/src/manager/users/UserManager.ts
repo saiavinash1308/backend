@@ -50,7 +50,6 @@ class UserManager {
 
     private addGameHandler(user: User){
         user.socket.on('INIT_GAME', async(data: string) => {
-            console.log("Init game")
             if(!data){
                 const response = JSON.stringify({ message: 'Invalid data' })
                 user.socket.emit('INIT_ERROR', response)
@@ -74,10 +73,11 @@ class UserManager {
         })
     }
     private addLudoHandler(user: User){
-        user.socket.on(ROLL_DICE, (data) => {
+        user.socket.on(ROLL_DICE, (call) => {
+            const data = JSON.parse(call)
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            const isValidRoll = z.object({diceValue: z.number()}).safeParse(data)
+            const isValidRoll = z.object({ diceValue: z.number()}).safeParse(data)
             if(!isValidRoll.success) return;
             const diceValue = isValidRoll.data.diceValue
             gameManager.fetchLudoGameAndRollDice(roomId, user.socket.id, diceValue);
@@ -85,37 +85,48 @@ class UserManager {
 
 
 
-        user.socket.on(PLAYER_FINISHED_MOVING, (data) => {
+        user.socket.on(PLAYER_FINISHED_MOVING, (call) => {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
-            console.log(data)
-            const isValidFinish = z.object({richedTheDestination: z.boolean().optional()}).safeParse(data)
+            const data = JSON.parse(call)
+            const isValidFinish = z.object({richedTheDestination: z.boolean(), diceValue: z.number()}).safeParse(data)
             if(!isValidFinish.success) return;
             const richedTheDestination = isValidFinish.data.richedTheDestination
             if(!roomId) return;
-            gameManager.fetchLudoGameAndFinishMoving(roomId, user.socket.id, richedTheDestination);
+            gameManager.fetchLudoGameAndFinishMoving(roomId, user.socket.id, isValidFinish.data.diceValue,  richedTheDestination);
         })
 
-        user.socket.on(SWITCH_PLAYER, () => {
+        user.socket.on(SWITCH_PLAYER, (call) => {
+            const data = JSON.parse(call)
+            const isValidSwitch = z.object({diceValue: z.number()}).safeParse(data);
+            if(!isValidSwitch.success) return;
+            const diceValue = isValidSwitch.data.diceValue
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchLudoGameAndSwitchPlayer(roomId, user.socket.id);
+            gameManager.fetchLudoGameAndSwitchPlayer(roomId, user.socket.id, diceValue);
         });
 
-        user.socket.on(AVOID_SWITCH_PLAYER, () => {
+        user.socket.on(AVOID_SWITCH_PLAYER, (call) => {
+            const data = JSON.parse(call)
+            const isValidAvoid = z.object({diceValue: z.number()}).safeParse(data);
+            if(!isValidAvoid.success) return;
+            const diceValue = isValidAvoid.data.diceValue
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
-            gameManager.fetchLudoGameAndAvoidSwitchPlayer(roomId, user.socket.id);
+
+            gameManager.fetchLudoGameAndAvoidSwitchPlayer(roomId, user.socket.id, diceValue);
         });
 
-        user.socket.on(MOVE_PLAYER, (data) => {
+        user.socket.on(MOVE_PLAYER, (call) => {
+            const data = JSON.parse(call)
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             const isValidMove = z.object({
-                pawnNo: z.number()
+                pawnNo: z.number(),
+                diceValue: z.number()
             }).safeParse(data);
             if(!isValidMove.success) return;
             const pawn = isValidMove.data.pawnNo;
-            gameManager.fetchLudoGameAndMovePlayer(roomId, user.socket.id, pawn);
+            gameManager.fetchLudoGameAndMovePlayer(roomId, user.socket.id, pawn, isValidMove.data.diceValue);
         })
 
         user.socket.on(ON_PLAYER_WIN, () => {

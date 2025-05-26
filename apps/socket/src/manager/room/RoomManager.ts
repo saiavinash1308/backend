@@ -78,7 +78,6 @@ export class RoomManager {
                 appManager.getRooms().set(roomId, room);
                 appManager.getPendingRoomMappinngs().set(gameId, roomId)
                 appManager.getUserToRoomMapping().set(user.socket.id, roomId);
-                console.log("Room created")
                 const message = JSON.stringify({ message: 'Room created', roomId })
                 user.socket.emit('ROOM_CREATED', message)
             }
@@ -116,7 +115,6 @@ export class RoomManager {
             })
             pendingRoom.addPlayer(user);
             appManager.getUserToRoomMapping().set(user.socket.id, roomId);
-            console.log("User added to room");
             return {success: true, message: 'User added to room'} 
         }
         if(!pendingRoom){
