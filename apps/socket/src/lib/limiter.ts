@@ -27,7 +27,7 @@ const avoidSwitchPlayerLimit = new RateLimiterMemory({
 
 const pickCardLimit = new RateLimiterMemory({
     points: 1, // 1 request
-    duration: 0.5, // per 0.5 seconds
+    duration: 1, // per 0.5 seconds
 })
 
 
