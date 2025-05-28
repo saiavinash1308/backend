@@ -9,7 +9,7 @@ type AddPlayerResponse = boolean
 export class Room {
     private readonly gameId: string
     private readonly roomId: string;
-    private readonly players: User[];
+    private players: User[];
     private isPending: boolean;
     private readonly maxPlayers: number;
     private readonly gameType: DBGameType;
@@ -57,6 +57,11 @@ export class Room {
       }
       
       return true;
+    }
+
+    removePlayer(playerId: string){
+      this.players = this.players.filter(player => player.socket.id !== playerId);
+      return this.players.length
     }
 
     get prizePool(){

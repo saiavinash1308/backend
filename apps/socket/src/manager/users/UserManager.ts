@@ -1,4 +1,4 @@
-import { AVOID_SWITCH_PLAYER, MATCH_MAKING, MOVE_PLAYER, ON_PLAYER_WIN, PLAYER_FINISHED_MOVING, ROLL_DICE, SWITCH_PLAYER } from "../../messages/ludomessage";
+import { AVOID_SWITCH_PLAYER, EXIT_ROOM, MATCH_MAKING, MOVE_PLAYER, ON_PLAYER_WIN, PLAYER_FINISHED_MOVING, ROLL_DICE, SWITCH_PLAYER } from "../../messages/ludomessage";
 import { validateInitGame, validateLudoMove, validateMemoryPick, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
 import { appManager } from "../main/AppManager";
@@ -133,6 +133,18 @@ class UserManager {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             gameManager.fetchLudoGameAndPlayerWin(roomId, user.socket.id);
+        })
+
+        user.socket.on(EXIT_ROOM, () => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
+            if(!roomId) return;
+            gameManager.fetchLudoGameAndExitRoom(roomId, user.socket.id);
+        })
+
+        user.socket.on('disconnect', () => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
+            if(!roomId) return;
+            gameManager.fetchLudoGameAndExitRoom(roomId, user.socket.id);
         })
     }
 

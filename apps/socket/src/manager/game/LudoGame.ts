@@ -1,4 +1,4 @@
-import { AVOID_SWITCH_PLAYER, MOVE_PLAYER, ON_PLAYER_WIN, PLAYER_FINISHED_MOVING, PLAYER_MOVED, ROLL_DICE, START_GAME, SWITCH_PLAYER } from "../../messages/ludomessage";
+import { AVOID_SWITCH_PLAYER, EXIT_ROOM, MOVE_PLAYER, ON_PLAYER_WIN, PLAYER_FINISHED_MOVING, PLAYER_MOVED, ROLL_DICE, START_GAME, SWITCH_PLAYER, YOU_WIN } from "../../messages/ludomessage";
 import { appManager } from "../main/AppManager";
 import { socketManager } from "../socket/SocketManager";
 
@@ -79,6 +79,18 @@ export class LudoGame{
     public playerWin(playerId: string){
         if(!this.isValidTurn(playerId)) return;
         socketManager.emitToOthers(this.roomId, ON_PLAYER_WIN, JSON.stringify({ playerId }), playerId);
+    }
+
+    public exitRoom(playerId: string){
+        const room = appManager.getRooms().get(this.roomId);
+        if(!room) return;
+        const playerCount = room.removePlayer(playerId)
+        if(playerCount === 1){
+            socketManager.emitToOthers(this.roomId, YOU_WIN, JSON.stringify({ playerId }), playerId);
+        }
+        else{
+            socketManager.emitToOthers(this.roomId, EXIT_ROOM, JSON.stringify({ playerId }), playerId);
+        }
     }
 
 

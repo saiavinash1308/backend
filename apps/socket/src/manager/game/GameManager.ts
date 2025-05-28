@@ -152,6 +152,14 @@ export class GameManager{
         const ludoGame = game as LudoGame
         ludoGame.playerWin(playerId);
     }
+    fetchLudoGameAndExitRoom(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "LUDO")  return;
+        const ludoGame = game as LudoGame
+        ludoGame.exitRoom(playerId);
+    }
 
 }
 
