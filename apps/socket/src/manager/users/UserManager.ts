@@ -1,3 +1,4 @@
+import { limitManager } from "../../lib/limiter";
 import { AVOID_SWITCH_PLAYER, EXIT_ROOM, MATCH_MAKING, MOVE_PLAYER, ON_PLAYER_WIN, PLAYER_FINISHED_MOVING, ROLL_DICE, SWITCH_PLAYER } from "../../messages/ludomessage";
 import { validateInitGame, validateLudoMove, validateMemoryPick, validateRoomId } from "../../zod/validateGame";
 import { gameManager } from "../game/GameManager";
@@ -73,7 +74,8 @@ class UserManager {
         })
     }
     private addLudoHandler(user: User){
-        user.socket.on(ROLL_DICE, (call) => {
+        user.socket.on(ROLL_DICE, async(call) => {
+            if(! await limitManager.hasRollLimit(user.socket.id)) return
             const data = JSON.parse(call)
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
@@ -85,7 +87,8 @@ class UserManager {
 
 
 
-        user.socket.on(PLAYER_FINISHED_MOVING, (call) => {
+        user.socket.on(PLAYER_FINISHED_MOVING, async(call) => {
+            if(! await limitManager.hasPlayerFinishedMovingLimit(user.socket.id)) return
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             const data = JSON.parse(call)
             const isValidFinish = z.object({richedTheDestination: z.boolean(), diceValue: z.number()}).safeParse(data)
@@ -95,7 +98,8 @@ class UserManager {
             gameManager.fetchLudoGameAndFinishMoving(roomId, user.socket.id, isValidFinish.data.diceValue,  richedTheDestination);
         })
 
-        user.socket.on(SWITCH_PLAYER, (call) => {
+        user.socket.on(SWITCH_PLAYER, async(call) => {
+            if(! await limitManager.hasSwitchPlayerLimit(user.socket.id)) return
             const data = JSON.parse(call)
             const isValidSwitch = z.object({diceValue: z.number()}).safeParse(data);
             if(!isValidSwitch.success) return;
@@ -105,7 +109,8 @@ class UserManager {
             gameManager.fetchLudoGameAndSwitchPlayer(roomId, user.socket.id, diceValue);
         });
 
-        user.socket.on(AVOID_SWITCH_PLAYER, (call) => {
+        user.socket.on(AVOID_SWITCH_PLAYER, async(call) => {
+            if(! await limitManager.hasAvoidSwitchPlayerLimit(user.socket.id)) return
             const data = JSON.parse(call)
             const isValidAvoid = z.object({diceValue: z.number()}).safeParse(data);
             if(!isValidAvoid.success) return;
@@ -116,7 +121,8 @@ class UserManager {
             gameManager.fetchLudoGameAndAvoidSwitchPlayer(roomId, user.socket.id, diceValue);
         });
 
-        user.socket.on(MOVE_PLAYER, (call) => {
+        user.socket.on(MOVE_PLAYER, async(call) => {
+            if(! await limitManager.hasMoveLimit(user.socket.id)) return
             const data = JSON.parse(call)
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
@@ -236,8 +242,9 @@ class UserManager {
     }
 
     private addMemoryListener(user: User){
-        user.socket.on("PICK_CARD", (data) => {
+        user.socket.on("PICK_CARD", async(data) => {
             try {
+                if(! await limitManager.hasPickLimit(user.socket.id)) return
                 const isValidPick = validateMemoryPick.safeParse(data);
                 if(!isValidPick.success) return;
                 const index = parseInt(isValidPick.data);
