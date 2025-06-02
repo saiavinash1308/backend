@@ -8,21 +8,21 @@ datasource db {
 }
 
 model User {
-  userId     String       @id @default(cuid())
-  username   String
-  otp        String
-  mobile     String       @unique
-  token      String       @default("")
-  suspended  Boolean      @default(false)
-  deviceId   String?
-  referralCode String? @unique
-  referredBy Referral? @relation("Referee")
-  referrals  Referral[] @relation("Referrer")
-  payments   Payments[]
-  rooms RoomPlayer[]
-  wallet     Wallet?
-  winnings Room[]
-  withdraws Withdraw[]
+  userId        String            @id @default(cuid())
+  username      String
+  otp           String
+  mobile        String            @unique
+  token         String            @default("")
+  suspended     Boolean           @default(false)
+  deviceId      String?
+  referralCode  String?           @unique
+  referredBy    Referral?         @relation("Referee")
+  referrals     Referral[]        @relation("Referrer")
+  payments      Payments[]
+  wallet        Wallet?
+  roomEntries   RoomParticipant[]
+  roomWinnings  Room[]            @relation("Winnings")
+  withdraws     Withdraw[]
 }
 
 model Wallet {
@@ -48,7 +48,7 @@ model Admin {
 model Banner {
   bannerId  String   @id @default(cuid())
   title     String
-  imageUrl  String  @db.Text
+  imageUrl  String   @db.Text
   createdAt DateTime @default(now())
   isActive  Boolean  @default(true)
 }
@@ -75,25 +75,29 @@ model Game {
   prizePool  Float
   currency   String   @default("INR")
   isActive   Boolean  @default(true)
-  rooms      Room[]
+  rooms      Room[]   
 }
 
 model Room {
-  roomId   String       @id @default(cuid())
-  gameId   String
-  status   GameStatus   @default(Running)
-  game     Game         @relation(fields: [gameId], references: [gameId])
-  players  RoomPlayer[]
-  winnerId String?
-  winner   User?        @relation(fields: [winnerId], references: [userId])
+  roomId         String            @id @default(cuid())
+  gameId         String
+  status         GameStatus        @default(Running)
+  game           Game              @relation(fields: [gameId], references: [gameId])
+  participants   RoomParticipant[]
+  winnerId       String?
+  winner         User?             @relation("Winnings", fields: [winnerId], references: [userId])
 }
 
-model RoomPlayer {
-  playerId String @id @default(cuid())
-  roomId   String
-  userId   String
-  room     Room   @relation(fields: [roomId], references: [roomId], onDelete: Cascade)
-  user     User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+model RoomParticipant {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  joinedAt  DateTime @default(now())
+
+  room      Room     @relation(fields: [roomId], references: [roomId])
+  user      User     @relation(fields: [userId], references: [userId])
+
+  @@unique([roomId, userId])
 }
 
 model Ticket {
@@ -108,21 +112,23 @@ model Ticket {
 }
 
 model Withdraw {
-  withdrawId  String  @id @default(cuid())
+  withdrawId   String           @id @default(cuid())
   userId       String
-  user         User   @relation(fields: [userId], references: [userId])
   amount       Float
-  status       WithdrawalStatus  @default(PENDING) // PENDING, SUCCESS, FAILED
-  timestamp    DateTime @default(now())
+  status       WithdrawalStatus @default(PENDING)
+  timestamp    DateTime         @default(now())
+  user         User             @relation(fields: [userId], references: [userId])
 }
 
-model Referral{
+model Referral {
   referralId String @id @default(cuid())
-  refereeId String @unique
-  referee User @relation("Referee",fields: [refereeId], references: [userId])
+  refereeId  String @unique
   referrerId String
-  referrer User @relation("Referrer", fields: [referrerId], references: [userId])
-  bonus Float @default(10)
+  bonus      Float  @default(10)
+
+  referee    User   @relation("Referee", fields: [refereeId], references: [userId])
+  referrer   User   @relation("Referrer", fields: [referrerId], references: [userId])
+
   @@unique([refereeId, referrerId])
 }
 

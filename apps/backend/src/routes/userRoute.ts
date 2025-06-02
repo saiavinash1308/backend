@@ -5,6 +5,7 @@ import { validateUser } from '../zod/validateAdmin';
 import { verifyAdmin } from '../middlewares/verifyUser';
 import { authenticateToken, UserRequest } from '../middlewares/verifyUser';
 import { checkAndAddReferral } from '../actions/checkAndAddReferral';
+import { sendMessage } from '../actions/sendMessage';
 
 const router = express.Router();
 
@@ -72,6 +73,7 @@ router.post('/create', async(req, res) => {
                 })
             }
         });
+        sendMessage(mobile, otp)
         return res.status(200).json({message: 'OTP generated. Please verify.'})        
     } catch (error) {
         return res.status(500).json({message: 'Internal server error', error})
@@ -101,6 +103,8 @@ router.post('/login', async(req, res) => {
                 otp
             }
         });
+
+        sendMessage(mobile, otp)
         
 
         return res.status(200).json({message: "OTP sent"})
@@ -222,16 +226,7 @@ router.put('/resendotp', async(req, res) => {
                 otp
             }
         });
-        fetch(`https://test.troposcore.com/twilio`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                mobile,
-                otp
-            })
-        })
+        sendMessage(mobile, otp)
         return res.status(200).json({message: 'OTP updated'})
     } catch (error) {
         return res.status(500).json({message: 'Internal server error'})

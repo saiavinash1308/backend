@@ -170,6 +170,23 @@ export class RoomManager {
                 const room = appManager.getRooms().get(pendingRoomId);
                 if(room && !room.isPendingRoom()){
                     //create game instance
+                    await prisma.$transaction(async(tx) => {
+                        await prisma.room.create({
+                          data: {
+                            gameId: gameId,
+                            roomId: pendingRoomId
+                          }
+                        });
+
+                        const data = room.getPlayers().map(user => ({
+                          userId: user.userId,
+                          roomId: pendingRoomId
+                        }));
+
+                        await prisma.roomParticipant.createMany({
+                          data: data,
+                        });
+                    })
                     appManager.getPendingRoomMappinngs().set(gameId, null)
                     const game = this.getGameObject(pendingRoomId, room.getGameType())
                     gameManager.createNewGame(game)
