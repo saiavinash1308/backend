@@ -4,8 +4,16 @@ import { Server } from 'socket.io'
 import { extractJwtToken } from './auth/auth'
 import { userManager } from './manager/users/UserManager'
 import dotenv from 'dotenv'
+import { prisma } from './lib/client'
+import cors from 'cors'
 
 const app = express()
+
+app.use(cors({
+  origin: '*', // Replace with frontend URL for production (e.g., 'https://yourapp.com')
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 
 
 const server = http.createServer(app);
@@ -22,6 +30,33 @@ app.get("/",async(_,res)=>{
     if(onlineUserSize > 10000) return onlineUserSize
         const randomValue = Math.floor(Math.random() * (150000 - 100000 + 1)) + 100000;
     return res.status(200).json({count: randomValue});
+})
+
+app.post('/', async(__, res) => {
+    const userCount = userManager.getUserCount();
+    const payout = await prisma.withdraw.aggregate({
+            where: {
+                status: "SUCCESS"
+            },
+            _sum: {
+                amount: true
+            }
+    });
+
+    const payments = await prisma.payments.aggregate({
+        where: {
+            status: "Paid"
+        },
+        _sum: {
+            amount: true
+        }
+    })
+
+    return res.status(200).json({
+        userCount,
+        withdrawls: payout._sum.amount ?? 0,
+        payments: payments._sum.amount ?? 0
+    })
 })
 
 io.on('connection', (socket) => {

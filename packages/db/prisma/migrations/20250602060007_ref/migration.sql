@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Referral` ADD COLUMN `bonus` DOUBLE NOT NULL DEFAULT 10;

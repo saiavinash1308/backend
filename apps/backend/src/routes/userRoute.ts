@@ -4,19 +4,31 @@ import {prisma} from '../lib/auth'
 import { validateUser } from '../zod/validateAdmin';
 import { verifyAdmin } from '../middlewares/verifyUser';
 import { authenticateToken, UserRequest } from '../middlewares/verifyUser';
+import { checkAndAddReferral } from '../actions/checkAndAddReferral';
 
 const router = express.Router();
 
 const generateOtp = () => {
     return Math.floor(100000 + Math.random() * 900000).toString()
 }
+
+function generateReferralCode(length = 8) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    code += characters[randomIndex];
+  }
+  return code;
+}
+
 router.post('/create', async(req, res) => {
     try {
         const userValidate = validateUser.safeParse(req.body);
         if(!userValidate.success){
             return res.status(400).json({message: 'Invalid credentials'})
         }
-        const {name, mobile} = userValidate.data;
+        const {name, mobile, referralCode} = userValidate.data;
         let user = await prisma.user.findUnique({
             where: {
                 mobile
@@ -39,8 +51,27 @@ router.post('/create', async(req, res) => {
                     userId: user.userId
                 }
             })
-        })
-        
+
+            if(referralCode){
+                const referrer = await prisma.user.findUnique({
+                    where: {
+                        referralCode
+                    },
+                    select: {
+                        userId: true
+                    }
+                })
+                if(!referrer){
+                    return res.status(400).json({message: "Invalid referral code"})
+                }
+                await tx.referral.create({
+                    data: {
+                        refereeId: user.userId,
+                        referrerId: referrer.userId
+                    }
+                })
+            }
+        });
         return res.status(200).json({message: 'OTP generated. Please verify.'})        
     } catch (error) {
         return res.status(500).json({message: 'Internal server error', error})
@@ -123,6 +154,13 @@ router.post('/verifyotp', async(req, res) => {
         const user = await prisma.user.findUnique({
             where: {
                 mobile
+            },
+            select: {
+                otp: true,
+                referralCode: true,
+                mobile: true,
+                userId: true,
+                username: true
             }
         });
         if(!user){
@@ -130,6 +168,30 @@ router.post('/verifyotp', async(req, res) => {
         }
         if(otp !== user.otp){
             return res.status(400).json({message: 'Incorrect OTP'})
+        }
+        let referralCode = user.referralCode
+        if(!user.referralCode){
+            referralCode = generateReferralCode();
+            const referral = await prisma.user.update({
+                where: {
+                    userId: user.userId
+                },
+                data: {
+                    referralCode
+                },
+                select: {
+                    referredBy: {
+                        select: {
+                            referralId: true
+                        }
+                    }
+                }
+            })
+
+            if(referral && referral.referredBy){
+                checkAndAddReferral(referral.referredBy.referralId)
+            }
+
         }
         const token = jwt.sign( { mobile: user.mobile, userId: user.userId, username: user.username }, 
             process.env.JWT_SECRET || "secret", 
@@ -261,5 +323,65 @@ router.get("/fetchallotp", async(req, res) => {
         return res.status(500).json({data: []})
     }
 })
+
+router.get('/fetchall', verifyAdmin, async (req, res) => {
+    try {
+        const page = parseInt(req.query.skip as string) || 1; // Default to 1 if not provided
+        const pageSize = parseInt(req.query.limit as string) || 10;
+
+
+        // Calculate the skip and take values for pagination
+        const skip = (page - 1)
+        const take = pageSize;
+
+        // Fetch the users from the database
+        const users = await prisma.user.findMany({
+            skip,
+            take,
+            select: {
+                userId: true,
+                username: true,
+                mobile: true,
+                suspended: true,
+                wallet: {
+                    select: {
+                        currentBalance: true
+                    }
+                },
+                rooms: {
+                    select: {
+                        roomId: true,
+                        room: {
+                            select: {
+                                game: {
+                                    select: {
+                                        entryFee: true,
+                                        prizePool: true,
+                                        gameType: true
+                                    }
+                                },
+                                winnerId: true
+                            },
+                        }
+                    }
+                }
+            }
+        });
+
+        // Fetch total count of users to support pagination in frontend
+        const totalUsers = await prisma.user.count();
+
+        // Return the response with user data and pagination info
+        return res.status(200).json({
+            users,
+            totalUsers, // Total number of users to calculate total pages on the frontend
+            totalPages: Math.ceil(totalUsers / pageSize), // Total pages for pagination
+            currentPage: page
+        });
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 export default router;

@@ -7,7 +7,7 @@ import uniqid from 'uniqid'
 import sha256 from 'sha256'
 
 import crypto from 'crypto';
-import { authenticateToken, UserRequest } from '../middlewares/verifyUser';
+import { authenticateToken, UserRequest, verifyAdmin } from '../middlewares/verifyUser';
 
 const router = express.Router();
 

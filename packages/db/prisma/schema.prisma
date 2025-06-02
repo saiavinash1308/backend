@@ -15,6 +15,9 @@ model User {
   token      String       @default("")
   suspended  Boolean      @default(false)
   deviceId   String?
+  referralCode String? @unique
+  referredBy Referral? @relation("Referee")
+  referrals  Referral[] @relation("Referrer")
   payments   Payments[]
   rooms RoomPlayer[]
   wallet     Wallet?
@@ -111,6 +114,16 @@ model Withdraw {
   amount       Float
   status       WithdrawalStatus  @default(PENDING) // PENDING, SUCCESS, FAILED
   timestamp    DateTime @default(now())
+}
+
+model Referral{
+  referralId String @id @default(cuid())
+  refereeId String @unique
+  referee User @relation("Referee",fields: [refereeId], references: [userId])
+  referrerId String
+  referrer User @relation("Referrer", fields: [referrerId], references: [userId])
+  bonus Float @default(10)
+  @@unique([refereeId, referrerId])
 }
 
 enum WithdrawalStatus {
