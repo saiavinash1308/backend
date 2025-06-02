@@ -1,3 +1,4 @@
+import { prisma } from "../../lib/client";
 import { appManager } from "../main/AppManager";
 import { Room } from "../room/Room";
 import { socketManager } from "../socket/SocketManager";
@@ -15,15 +16,21 @@ export class MemoryGame{
         private gameCards: string[];
         private isGameEnd: boolean = false;
         private isCardOpened: boolean = false;
+        private user1: string;
+        private user2: string
         constructor(roomId: string){
             this.roomId = roomId
             const room = appManager.getRooms().get(roomId);
             if(!room) throw new Error('Room not found');
             this.room = room;
             this.gameCards = this.shuffleCards();
-            const sockets = this.room.getPlayerSockets();
-            this.player1 = sockets[0].id;
-            this.player2 = sockets[1].id;
+            const players = room.getPlayers();
+            this.player1 = players[0].socket.id;
+            this.user1 = players[0].userId;
+
+            this.player2 = players[1].socket.id;
+            this.user2 = players[1].userId
+
             this.currentPlayer = this.player1;
             const newUsers = new Array<{socketId: string, username: string}>();
             this.room.getPlayers().forEach((player) => newUsers.push({socketId: player.socket.id, username: player.username}))
@@ -131,6 +138,41 @@ export class MemoryGame{
                 
             }
             
+        }
+
+        private async writeToDB(userId: string){
+            const winAmount = this.room.prizePool;
+            const wallet = await prisma.wallet.findUnique({
+                where: {
+                    userId
+                },
+                select: {
+                    walletId: true
+                }
+            });
+
+            if(!wallet) return;
+
+            await prisma.wallet.update({
+                where: {
+                    walletId: wallet.walletId
+                },
+                data: {
+                    currentBalance: {
+                        increment: winAmount
+                    }
+                }
+            })
+        }
+
+
+        public exitGame(playerId: string){
+            if(playerId === this.player1){
+                this.writeToDB(this.user2)
+            }
+            else{
+                this.writeToDB(this.user1)
+            }
         }
 
 

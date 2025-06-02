@@ -256,11 +256,16 @@ class UserManager {
             }
         })
 
-        user.socket.on("UPDATE_TURN", (data) => {
+        user.socket.on("UPDATE_TURN", () => {
             console.log("Updating turn")
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
             gameManager.fetchMemoryGameAndUpdateTurn(roomId, user.socket.id);
+        })
+
+        user.socket.on("EXIT_ROOM", () => {
+            const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
+            if(!roomId) return;
         })
     }
 }
