@@ -21,7 +21,7 @@ model User {
   payments      Payments[]
   wallet        Wallet?
   roomEntries   RoomParticipant[]
-  roomWinnings  Room[]            @relation("Winnings")
+  winnings  Room[]            @relation("Winnings")
   withdraws     Withdraw[]
 }
 
