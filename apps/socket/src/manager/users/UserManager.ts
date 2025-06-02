@@ -266,6 +266,7 @@ class UserManager {
         user.socket.on("EXIT_ROOM", () => {
             const roomId = appManager.getUserToRoomMapping().get(user.socket.id);
             if(!roomId) return;
+            gameManager.fetchMemoryGameAndExitRoom(roomId, user.socket.id)
         })
     }
 }

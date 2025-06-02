@@ -97,6 +97,15 @@ export class GameManager{
         memorygame.handleTurn(playerId);
     }
 
+    fetchMemoryGameAndExitRoom(roomId: string, playerId: string){
+        const game = this.games.get(roomId);
+        if(!game) return;
+        const room = appManager.getRoom(roomId);
+        if(!room || room.getGameType() !== "MEMORYGAME")  return;
+        const memorygame = game as MemoryGame
+        memorygame.exitGame(playerId)
+    }
+
     //LUDO Functions
 
     fetchLudoGameAndRollDice(roomId: string, playerId: string, diceValue: number){
