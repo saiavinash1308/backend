@@ -20,7 +20,7 @@ model User {
   referrals     Referral[]        @relation("Referrer")
   payments      Payments[]
   wallet        Wallet?
-  roomEntries   RoomParticipant[]
+  rooms   RoomParticipant[]
   winnings  Room[]            @relation("Winnings")
   withdraws     Withdraw[]
 }
