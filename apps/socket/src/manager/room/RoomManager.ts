@@ -14,6 +14,7 @@ import { RummyGame } from "../game/RummyGame";
 import { GameType } from "../../types/GameTypes";
 import { DBGameType } from "../../types/RoomTypes";
 import { MemoryGame } from "../game/MemoryGame";
+import { userManager } from "../users/UserManager";
 
 
 export class RoomManager {
@@ -47,6 +48,9 @@ export class RoomManager {
 
     private async createNewRoom(user: User, gameId: string){
         const data = await this.fetchGameDetails(gameId);
+        for (const [_, user] of userManager._onlineUsers.entries()){
+            user.socket.emit("NEW_ROOM_CREATE_CHECK");
+        }
         if(data.success){
             const gameDetails = data.gameDetails;
             if(gameDetails){
@@ -207,7 +211,13 @@ export class RoomManager {
 
 
     deleteRoom(roomId: string, gameId: string){
+        const room = appManager.getRooms().get(roomId);
+        if(!room) return;
+        room.getPlayerSockets().forEach((socket) => {
+            socket.emit("ROOM_TIMEUP")
+        })
         appManager.getRooms().delete(roomId);
+        
         for (const [user, room] of appManager.getUserToRoomMapping().entries()) {
           if (room === roomId) {
               appManager.getUserToRoomMapping().delete(user);

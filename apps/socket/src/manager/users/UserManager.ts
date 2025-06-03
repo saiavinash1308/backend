@@ -42,6 +42,10 @@ class UserManager {
         return this.onlineUsers.size
     }
 
+    get _onlineUsers(){
+        return this.onlineUsers
+    }
+
     private getOnlinePlayers() {
         const onlineUserSize = this.onlineUsers.size;
         if(onlineUserSize > 10000) return onlineUserSize
