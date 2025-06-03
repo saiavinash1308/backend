@@ -40,21 +40,33 @@ router.post('/getwallet', authenticateToken, async(req: Request & { user?: JwtPa
 })
 router.get('/getWalletAmount', authenticateToken, async(req: UserRequest, res) => {
     try {
-        const {userId} = req.user!
-        const wallet = await prisma.wallet.findFirst({
+        const userId = req.user?.userId
+
+        if(!userId){
+            return res.status(400).json({message: "Invalid auth"})
+        }
+
+        const user = await prisma.user.findUnique({
             where: {
-                user: {
-                    userId
-                }
+                userId
             },
             select: {
-                currentBalance: true
+                wallet: {
+                    select: {
+                        currentBalance: true,
+                    }
+                },
+                referralCode: true
             }
         });
-        if(!wallet){
+
+        if(!user){
+            return res.status(400).json({message: "Invalid auth"});
+        }
+        if(!user.wallet){
             return res.status(400).json({message: 'Wallet not found'})
         }
-        return res.status(200).json({amount: wallet.currentBalance})
+        return res.status(200).json({amount: user.wallet.currentBalance, referralId: user.referralCode})
     } catch (error) {
         return res.status(500).json({message: 'Internal server error'})
     }
