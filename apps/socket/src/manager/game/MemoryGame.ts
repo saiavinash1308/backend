@@ -180,11 +180,6 @@ export class MemoryGame{
                 const message = JSON.stringify({winnerId: this.player1, score1: this.player1Score, score2: this.player2Score})
                 socketManager.emitToOthers(this.roomId, "END_GAME", message, this.player2)
             }
-
-
-
-
-
         }
 
 
