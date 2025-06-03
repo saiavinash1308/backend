@@ -170,6 +170,11 @@ export class GameManager{
         ludoGame.exitRoom(playerId);
     }
 
+
+    deleteGame(roomId: string){
+        this.games.delete(roomId)
+    }
+
 }
 
 export const gameManager = GameManager.getInstance()

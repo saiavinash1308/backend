@@ -28,20 +28,9 @@ export class Room {
       this._prizePool = prizePool;
       setTimeout(() => {
         if(this.players.length < maxPlayers){
-          this.players.forEach(player => {
-            player.socket.emit("MATCH_MAKING_FAILED", "Unable to find players. Please try after sometime")
-          })
-          appManager.getRooms().delete(roomId);
-          for (const [user, room] of appManager.getUserToRoomMapping().entries()) {
-            if (room === roomId) {
-                appManager.getUserToRoomMapping().delete(user);
-            }
-          }
-          if(appManager.getPendingRoomMappinngs().get(gameId) === roomId){
-            appManager.getPendingRoomMappinngs().delete(gameId);
-          }
+          roomManager.deleteRoom(roomId, gameId)
         }
-      }, 200000);
+      }, 20000);
     }
   
     addPlayer(player: User): AddPlayerResponse {

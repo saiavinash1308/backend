@@ -204,6 +204,19 @@ export class RoomManager {
         }
         await this.createNewRoom(user, gameId)
     }
+
+
+    deleteRoom(roomId: string, gameId: string){
+        appManager.getRooms().delete(roomId);
+        for (const [user, room] of appManager.getUserToRoomMapping().entries()) {
+          if (room === roomId) {
+              appManager.getUserToRoomMapping().delete(user);
+          }
+        }
+        if(appManager.getPendingRoomMappinngs().get(gameId) === roomId){
+          appManager.getPendingRoomMappinngs().delete(gameId);
+        }
+    }
 }
 
 

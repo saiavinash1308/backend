@@ -2,6 +2,7 @@ import { prisma } from "../../lib/client";
 import { appManager } from "../main/AppManager";
 import { Room } from "../room/Room";
 import { socketManager } from "../socket/SocketManager";
+import { gameManager } from "./GameManager";
 
 export class MemoryGame{
     private readonly roomId: string
@@ -120,8 +121,11 @@ export class MemoryGame{
                         }
                         else{
                             const winnerId = this.player1Score > this.player2Score ? this.player1 : this.player2;
+                            const winner = this.player1Score > this.player2Score ? this.user1 : this.user2;
                             const message = JSON.stringify({winnerId, score1: this.player1Score, score2: this.player2Score})
                             socketManager.broadcastToRoom(this.roomId, "END_GAME", message);
+                            this.writeToDB(winner)
+                            gameManager.deleteGame(this.roomId)
                         }
                     }, 1500);
             }
@@ -180,6 +184,8 @@ export class MemoryGame{
                 const message = JSON.stringify({winnerId: this.player1, score1: this.player1Score, score2: this.player2Score})
                 socketManager.emitToOthers(this.roomId, "END_GAME", message, this.player2)
             }
+
+            gameManager.deleteGame(this.roomId)
         }
 
 
