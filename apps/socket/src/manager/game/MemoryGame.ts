@@ -163,16 +163,28 @@ export class MemoryGame{
                     }
                 }
             })
+
         }
 
 
-        public exitGame(playerId: string){
+        public async exitGame(playerId: string){
+
+            
             if(playerId === this.player1){
-                this.writeToDB(this.user2)
+                await this.writeToDB(this.user2)
+                const message = JSON.stringify({winnerId: this.player2, score1: this.player1Score, score2: this.player2Score})
+                socketManager.emitToOthers(this.roomId, "END_GAME", message, this.player1)
             }
             else{
-                this.writeToDB(this.user1)
+                await this.writeToDB(this.user1)
+                const message = JSON.stringify({winnerId: this.player1, score1: this.player1Score, score2: this.player2Score})
+                socketManager.emitToOthers(this.roomId, "END_GAME", message, this.player2)
             }
+
+
+
+
+
         }
 
 
