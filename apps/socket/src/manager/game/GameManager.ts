@@ -1,5 +1,6 @@
 import { GameType } from "../../types/GameTypes";
 import { appManager } from "../main/AppManager";
+import { roomManager } from "../room/RoomManager";
 import { CricketGame } from "./CricketGame";
 import { FastLudoGame } from "./FastLudoGame";
 import { LudoGame } from "./LudoGame";
@@ -173,6 +174,7 @@ export class GameManager{
 
     deleteGame(roomId: string){
         this.games.delete(roomId)
+        roomManager.deleteRoom(roomId)
     }
 
 }

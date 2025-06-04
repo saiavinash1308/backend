@@ -210,7 +210,7 @@ export class RoomManager {
     }
 
 
-    deleteRoom(roomId: string, gameId: string){
+    deleteRoom(roomId: string){
         const room = appManager.getRooms().get(roomId);
         if(!room) return;
         room.getPlayerSockets().forEach((socket) => {
@@ -223,6 +223,8 @@ export class RoomManager {
               appManager.getUserToRoomMapping().delete(user);
           }
         }
+
+        const gameId = room.getGameId();
         if(appManager.getPendingRoomMappinngs().get(gameId) === roomId){
           appManager.getPendingRoomMappinngs().delete(gameId);
         }

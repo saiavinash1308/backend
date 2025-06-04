@@ -28,7 +28,7 @@ export class Room {
       this._prizePool = prizePool;
       setTimeout(() => {
         if(this.players.length < maxPlayers){
-          roomManager.deleteRoom(roomId, gameId)
+          roomManager.deleteRoom(roomId)
         }
       }, 20000);
     }
