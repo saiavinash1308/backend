@@ -10,11 +10,11 @@ const router = express();
 
 router.post('/create', async(req, res) => {
     try {
-        const isValidGame = validateGameDetails.safeParse(req.body).success;
-        if(!isValidGame){
+        const isValidGame = validateGameDetails.safeParse(req.body);
+        if(!isValidGame.success){
             return res.status(400).json({message: "Invalid game details"})
         }
-        const {gameType, maxPlayers, entryFee, prizePool} = req.body
+        const {gameType, maxPlayers, entryFee, prizePool} = isValidGame.data
         const game = await prisma.game.create({
             data: {
                 gameType,

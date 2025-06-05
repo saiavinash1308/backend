@@ -25,7 +25,7 @@ export const validateBanner = z.object({
 });
 
 export const validateGameDetails = z.object({
-    gameType: z.enum(["LUDO", "CRICKET", "FAST_LUDO", "RUMMY"]),
+    gameType: z.enum(["LUDO", "CRICKET", "FAST_LUDO", "RUMMY", "MEMORYGAME"]),
     maxPlayers: z.union([z.literal(2), z.literal(4)]),
     entryFee: z.number(),
     prizePool: z.number()
