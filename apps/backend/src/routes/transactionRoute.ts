@@ -8,14 +8,15 @@ import sha256 from 'sha256'
 
 import crypto from 'crypto';
 import { authenticateToken, UserRequest, verifyAdmin } from '../middlewares/verifyUser';
+import { validatePaymentSchema } from '../zod/validatePayment';
 
 const router = express.Router();
 
 
 
 const razorpayInstance = new Razorpay({
-    key_id: 'rzp_test_ILhEsA5oxLGYj5',
-    key_secret: 'eb0oOIIO5da9NVCwSL5RHqMU',
+    key_id: 'rzp_test_YMz0Y3gFfRMHiK',
+    key_secret: 'Z6UUFUHzx4wKCuvzS8WX76DV',
 });
 
 
@@ -168,7 +169,7 @@ router.post('/create',  async(req, res) => {
       const order = await razorpayInstance.orders.create(options);
 
     
-      const transaction = await prisma.payments.create({
+      await prisma.payments.create({
           data: {
               orderId: order.id,
               userId,
@@ -213,8 +214,14 @@ router.get('/fetchTransactions', authenticateToken, async(req: UserRequest, res)
 
 
 router.post('/update', async (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, status } = req.body;
-    razorpay_order_id
+
+    const isValidPayment = validatePaymentSchema.safeParse(req.body)
+
+    if(!isValidPayment.success){
+      return res.status(400).json({message: "Invalid data"})
+    }
+
+    const {razorpay_order_id, razorpay_payment_id, razorpay_signature, status} = isValidPayment.data
   
     // If status is failed, no need to verify signature, directly update status
     if (status === 'failed') {
@@ -256,9 +263,4 @@ router.post('/update', async (req, res) => {
       res.status(500).json({ message: 'Error updating transaction', error });
     }
   });
-
-
-
-  
-
 export default router;
