@@ -32,11 +32,6 @@ router.post('/create' ,async(req, res) => {
 })
 
 
-
-// @route   POST /api/admin/login
-// @desc    Login admin and return token
-// @access  Public
-
 router.post('/login', async(req, res) => {
   const {email, password} = req.body;
   try {
