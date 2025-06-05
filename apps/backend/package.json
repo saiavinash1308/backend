@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx tsc -b && nodemon dist/index.js",
-    "start": "nodemon dist/index.js"
+    "start": "nodemon dist/index.js",
+    "work": "git pull origin main && cd apps/backend && npx tsc -b"
   },
   "keywords": [],
   "author": "",
