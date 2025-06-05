@@ -3,6 +3,7 @@ import { appManager } from "../main/AppManager";
 import { Room } from "../room/Room";
 import { socketManager } from "../socket/SocketManager";
 import { gameManager } from "./GameManager";
+import { randomInt } from 'crypto'
 
 export class MemoryGame{
     private readonly roomId: string
@@ -43,24 +44,24 @@ export class MemoryGame{
             }, 1000);
         }
 
-        private shuffleCards(){
+        private shuffleCards() {
             const iconConfigs = [
-                "Mind_0",
-                "Mind_1",
-                "Mind_2",
-                "Mind_3",
-                "Mind_4",
-                "Mind_5",
-                "Mind_6",
-                "Mind_7",
-                "Mind_8",
-                "Mind_9",
-                "Mind_10",
-            ]
+                "Mind_0", "Mind_1", "Mind_2", "Mind_3", "Mind_4",
+                "Mind_5", "Mind_6", "Mind_7", "Mind_8", "Mind_9", "Mind_10"
+            ];
+        
             const duplicatedArray = [...iconConfigs, ...iconConfigs];
-            const shuffledArray = duplicatedArray.sort(() => Math.random() - 0.5);
-            return shuffledArray;
+            const n = duplicatedArray.length;
+        
+            for (let i = n - 1; i > 0; i--) {
+                const j = randomInt(0, i + 1); // secure random int between 0 and i
+                [duplicatedArray[i], duplicatedArray[j]] = [duplicatedArray[j], duplicatedArray[i]];
+            }
+        
+            return duplicatedArray;
         }
+
+
 
         public handleTurn(playerId: string){
             console.log("Expected Turn change from " + this.currentPlayer + " recieved " + playerId);
