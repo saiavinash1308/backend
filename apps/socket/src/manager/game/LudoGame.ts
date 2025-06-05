@@ -1,6 +1,7 @@
 import { AVOID_SWITCH_PLAYER, EXIT_ROOM, MOVE_PLAYER, ON_PLAYER_WIN, PLAYER_FINISHED_MOVING, PLAYER_MOVED, ROLL_DICE, START_GAME, SWITCH_PLAYER, YOU_WIN } from "../../messages/ludomessage";
 import { appManager } from "../main/AppManager";
 import { socketManager } from "../socket/SocketManager";
+import { gameManager } from "./GameManager";
 
 
 export class LudoGame{
@@ -79,6 +80,7 @@ export class LudoGame{
     public playerWin(playerId: string){
         if(!this.isValidTurn(playerId)) return;
         socketManager.emitToOthers(this.roomId, ON_PLAYER_WIN, JSON.stringify({ playerId }), playerId);
+        gameManager.deleteGame(this.roomId)
     }
 
     public exitRoom(playerId: string){
@@ -91,6 +93,8 @@ export class LudoGame{
         else{
             socketManager.emitToOthers(this.roomId, EXIT_ROOM, JSON.stringify({ playerId }), playerId);
         }
+
+        gameManager.deleteGame(this.roomId)
     }
 
 
