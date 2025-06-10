@@ -2,6 +2,7 @@ import express from 'express'
 import { validateResolve, validateTicket } from '../zod/validateAdmin';
 import { prisma } from '../lib/auth';
 import nodemailer from 'nodemailer'
+import { authenticateToken } from '../middlewares/verifyUser';
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ async function solveTicket(ticketId: string){
 
 
 
-router.post('/create', async (req, res) => {
+router.post('/create', authenticateToken, async (req, res) => {
     try {
         const ticketValidation = validateTicket.safeParse(req.body);
         // console.log(req.body.email + " " + req.body.name + " " + req.body.issue + " " + req.body.description + " " + req.body.image)

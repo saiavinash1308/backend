@@ -132,6 +132,11 @@ model Referral {
   @@unique([refereeId, referrerId])
 }
 
+model Feedback{
+  feedBackId String @id @default(cuid())
+  message String
+}
+
 enum WithdrawalStatus {
   PENDING
   SUCCESS

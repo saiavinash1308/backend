@@ -32,7 +32,6 @@ export const verifyAdmin = (req: Request, res: Response, next: NextFunction) => 
 
   // Verify the token
   jwt.verify(token, process.env.JWT_SECRET || "secret", (err, decoded) => {
-    console.log(decoded)
     if (!decoded || err) {
       return res.status(403).send('Failed to authenticate token.');
     }

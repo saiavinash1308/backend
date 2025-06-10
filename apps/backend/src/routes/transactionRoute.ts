@@ -126,16 +126,12 @@ router.get("/payment/validate/:merchantTransactionId", async function (req, res)
 
 
 
-router.post('/create',  async(req, res) => {
+router.post('/create', authenticateToken, async(req: UserRequest, res) => {
   try {
-      const token = req.headers['authorization'];
-      if (!token) {
-          return res.status(401).send('Unauthorized token'); // Unauthorized
-      }
-
-      const data = jwt.verify(token, process.env.JWT_SECRET || "secret");
-      const { userId }: any = data;
-
+    if(!req.user){
+        return res.status(401).json({message: 'Unauthorized'})
+    }
+      const {userId} = req.user
       const user = await prisma.user.findUnique({
           where: {
               userId

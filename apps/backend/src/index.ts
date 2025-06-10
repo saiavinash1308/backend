@@ -8,6 +8,7 @@ import bannerRouter from './routes/bannerRoute'
 import gameRouter from './routes/gameRoute'
 import ticketRouter from './routes/ticketRoute'
 import walletRoute from './routes/walletRoute';
+import feedBackRouter from './routes/feedbackRoute'
 
 dotenv.config()
 
@@ -29,8 +30,9 @@ app.use('/api/banner', bannerRouter)
 app.use('/api/game', gameRouter)
 app.use('/api/ticket', ticketRouter);
 app.use('/api/wallet', walletRoute);
+app.use('/api/feedback', feedBackRouter)
 
-app.get("/",(req,res)=>{
+app.get("/",(_,res)=>{
     res.send("Hello user");
 })
 
